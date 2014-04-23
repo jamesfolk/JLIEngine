@@ -317,7 +317,7 @@ function createPlane()
     
     
     local vbo = vertexBufferFactory:get(planeViewObjectID)
-    vbo:loadGLSL(shaderID, materialID)
+--    vbo:loadGLSL(shaderID, materialID)
     
     
     

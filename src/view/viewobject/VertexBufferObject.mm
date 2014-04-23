@@ -255,104 +255,6 @@ void VertexBufferObject::loadGLSL(const IDType shaderFactoryID,
         getMaterial(textureIndex)->loadGLSL(this, textureIndex);
     
     glUseProgram(0);
-    
-//    if(program > 0 &&
-//       isGLBufferLoaded())
-//    {
-//        GLuint program = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
-//        
-//        glUseProgram(program);
-//        
-//        glBindAttribLocation(program, ATTRIB_POSITION, "position");
-//        glBindAttribLocation(program, ATTRIB_COLOR, "sourceColor");
-//        glBindAttribLocation(program, ATTRIB_TRANSFORMMATRIX, "modelview");
-//        
-//        m_GLSLUniforms.modelViewMatrix = glGetUniformLocation(program, "modelViewMatrix");check_gl_error()
-//        m_GLSLUniforms.projectionMatrix = glGetUniformLocation(program, "projectionMatrix");check_gl_error()
-//        m_GLSLUniforms.modelMatrix = glGetUniformLocation(program, "modelMatrix");check_gl_error();
-//        
-//        for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-//            getMaterial(textureIndex)->loadGLSL(this, textureIndex);
-    
-        
-//        
-//        
-////        m_GLSLAttributes.transformmatrix = glGetAttribLocation(programHandle, "transformmatrix");check_gl_error()
-//        m_GLSLAttributes.transformmatrix = 0;
-//        
-////        m_GLSLAttributes.position = glGetAttribLocation(programHandle, "position");check_gl_error()
-//        m_GLSLAttributes.position = 1;
-//        
-//        if(hasColorAttribute())
-//            m_GLSLAttributes.color = glGetAttribLocation(programHandle, "color");check_gl_error()
-//        
-//        if(hasNormalAttribute())
-//            m_GLSLAttributes.normal = glGetAttribLocation(programHandle, "normal");check_gl_error()
-//        
-//        for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-//            m_GLSLAttributes.textureCoord[textureIndex] = glGetAttribLocation(programHandle,
-//                                                                              textureCoord[textureIndex]);check_gl_error()
-//        
-//        
-//        
-//        m_GLSLUniforms.modelViewMatrix = glGetUniformLocation(programHandle, "modelViewMatrix");check_gl_error()
-//        m_GLSLUniforms.projectionMatrix = glGetUniformLocation(programHandle, "projectionMatrix");check_gl_error()
-//        m_GLSLUniforms.modelMatrix = glGetUniformLocation(programHandle, "modelMatrix");check_gl_error();
-//        
-//        for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-//            getMaterial(textureIndex)->loadGLSL(this, textureIndex);
-//        
-//        glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-//        
-////        if(m_GLSLAttributes.transformmatrix != 1)
-////        {
-////            for (unsigned int i = 0; i < 4 ; i++)
-////            {
-////                glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + i);
-////                glVertexAttribPointer(m_GLSLAttributes.transformmatrix + i, 4, GL_FLOAT, GL_FALSE, getStride(), (const GLvoid*)getWorldTransformOffset(i));
-//////                glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + i, 1);
-////            }
-////        }
-//        if(m_GLSLAttributes.position != -1)
-//        {
-//            glEnableVertexAttribArray(m_GLSLAttributes.position);check_gl_error()
-//            glVertexAttribPointer(m_GLSLAttributes.position,
-//                                  4, GL_FLOAT, GL_FALSE,
-//                                  getStride(),
-//                                  (const GLvoid*)getPositionOffset());check_gl_error()
-//        }
-//        if(m_GLSLAttributes.color != -1)
-//        {
-//            glEnableVertexAttribArray(m_GLSLAttributes.color);check_gl_error()
-//            glVertexAttribPointer(m_GLSLAttributes.color,
-//                                  4, GL_FLOAT, GL_FALSE,
-//                                  getStride(),
-//                                  (const GLvoid*)getColorOffset());check_gl_error()
-//        }
-//        if(m_GLSLAttributes.normal != -1)
-//        {
-//            glEnableVertexAttribArray(m_GLSLAttributes.normal);check_gl_error()
-//            glVertexAttribPointer(m_GLSLAttributes.normal,
-//                                  4, GL_FLOAT, GL_FALSE,
-//                                  getStride(),
-//                                  (const GLvoid*)getNormalOffset());check_gl_error()
-//        }
-//        for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-//        {
-//            if(m_GLSLAttributes.textureCoord[textureIndex] != -1)
-//            {
-//                glEnableVertexAttribArray(m_GLSLAttributes.textureCoord[textureIndex]);check_gl_error()
-//                if(m_GLSLAttributes.textureCoord[textureIndex] != -1)
-//                {
-//                    glVertexAttribPointer(m_GLSLAttributes.textureCoord[textureIndex], 2, GL_FLOAT, GL_FALSE,
-//                                          getStride(),
-//                                          (const GLvoid*)getTextureOffset(textureIndex));check_gl_error()
-//                }
-//            }
-//        }
-        
-//        glUseProgram(0);
-//    }
 }
 
 
@@ -478,6 +380,10 @@ void VertexBufferObject::updateGLBuffer(bool position,
 
 void VertexBufferObject::renderGLBuffer(GLenum drawmode)
 {
+    
+#if defined(DEBUG) || defined (_DEBUG)
+    glPushGroupMarkerEXT(0, getName().c_str());
+#endif
     GLuint program = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
     
     glUseProgram(program);check_gl_error()
@@ -487,7 +393,7 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
     GLfloat *m = new GLfloat[16];
     pCamera->getProjection2().getOpenGLMatrix(m);
     glUniformMatrix4fv(m_GLSLUniforms.projectionMatrix, 1, 0, m);check_gl_error()
-//
+    
     pCamera->getWorldTransform().inverse().getOpenGLMatrix(m);
     glUniformMatrix4fv(m_GLSLUniforms.modelViewMatrix, 1, 0, m);check_gl_error()
     delete [] m;
@@ -502,52 +408,11 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);check_gl_error()
     glBindBuffer(GL_ARRAY_BUFFER, 0);check_gl_error()
     
-    
     glUseProgram(0);
     
-//#if defined(DEBUG) || defined (_DEBUG)
-//    glPushGroupMarkerEXT(0, getName().c_str());
-//#endif
-//    
-//    btAssert(m_ShaderFactoryID > 0);
-//    
-//    GLuint programHandle = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
-//    
-//    glUseProgram(programHandle);check_gl_error()
-//    
-//    BaseCamera *pCamera = CameraFactory::getInstance()->getCurrentCamera();
-//    
-//    GLfloat m[16];
-//    pCamera->getProjection2().getOpenGLMatrix(m);
-//    glUniformMatrix4fv(m_GLSLUniforms.projectionMatrix, 1, 0, m);check_gl_error()
-//    
-//    pCamera->getWorldTransform().inverse().getOpenGLMatrix(m);
-//    glUniformMatrix4fv(m_GLSLUniforms.modelViewMatrix, 1, 0, m);check_gl_error()
-//    
-//    temp->getWorldTransform().getOpenGLMatrix(m);
-//    glUniformMatrix4fv(m_GLSLUniforms.modelMatrix, 1, 0, m);check_gl_error();
-//
-//    for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-//    {
-//        getMaterial(textureIndex)->render(this, textureIndex);
-//    }
-//    
-//    updateGLBuffer();
-//    
-//    
-//    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
-//    
-//    glDrawElements(GL_TRIANGLES, m_NumInstances * m_NumVertices, GL_UNSIGNED_SHORT, 0);check_gl_error();
-//	
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    
-//    glUseProgram(0);check_gl_error()
-//    
-//#if defined(DEBUG) || defined (_DEBUG)
-//    glPopGroupMarkerEXT();
-//#endif
+#if defined(DEBUG) || defined (_DEBUG)
+    glPopGroupMarkerEXT();
+#endif
 }
 
 bool VertexBufferObject::registerEntity(BaseEntity *entity)
@@ -559,8 +424,6 @@ bool VertexBufferObject::registerEntity(BaseEntity *entity)
     m_BaseObjects.push_back(entity->getID());
     
     return true;
-    
-//    return m_VBOTransformQueue->registerEntity(entity);
 }
 bool VertexBufferObject::unRegisterEntity(BaseEntity *entity)
 {
@@ -569,13 +432,10 @@ bool VertexBufferObject::unRegisterEntity(BaseEntity *entity)
     m_BaseObjects.remove(entity->getID());
     
     return true;
-    
-//    return m_VBOTransformQueue->unRegisterEntity(entity);
 }
 void VertexBufferObject::render(BaseEntity *entity)
 {
     m_ShouldRender = GL_TRUE;
-//    temp = entity;
 }
 const VBOMaterial*	VertexBufferObject::getMaterial(unsigned int index) const
 {

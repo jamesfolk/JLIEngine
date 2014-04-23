@@ -392,6 +392,8 @@ GLboolean VertexBufferObject::loadGLBuffer(const btAlignedObjectArray<VERTEX_ATT
             "textureCoord7"
         };
         
+        glUseProgram(program);
+        
         m_GLSLAttributes.position = glGetAttribLocation(program, "position");
         m_GLSLAttributes.color = glGetAttribLocation(program, "sourceColor");
         m_GLSLAttributes.transformmatrix = glGetAttribLocation(program, "transformmatrix");
@@ -450,6 +452,8 @@ GLboolean VertexBufferObject::loadGLBuffer(const btAlignedObjectArray<VERTEX_ATT
                      m_NumIndices * sizeof(indices[0]),
                      &indices[0],
                      GL_DYNAMIC_DRAW);check_gl_error()
+        
+        glUseProgram(0);
         
         ret = GL_TRUE;
         
