@@ -16,9 +16,10 @@
 #include "btVector2.h"
 #include "btTransform.h"
 #include "VertexBufferObjectFactoryIncludes.h"
-#include "VBOTransformQueue.h"
-#include "jliTransform.h"
+//#include "VBOTransformQueue.h"
+//#include "jliTransform.h"
 #include "ShaderFactory.h"
+#include "VBOMaterial.h"
 
 #if defined(DEBUG) || defined (_DEBUG)
 extern void _check_gl_error(const char *file, int line, const char *function);
@@ -28,7 +29,7 @@ extern void _check_gl_error(const char *file, int line, const char *function);
 #endif
 
 extern const unsigned int TEXTURE_MAX;
-extern const unsigned int MAX_INSTANCES;
+//extern const unsigned int MAX_INSTANCES;
 
 class VBOMaterial;
 class BaseEntity;
@@ -95,6 +96,8 @@ public AbstractFactoryObject
     size_t m_NormalOffset;
     size_t m_ColorOffset;
     size_t *m_TextureOffset;
+    
+    GLfloat *m_MatrixBuffer;
 private:
     typedef void (*vector2Func)(int i, btVector2 &to, const btVector2 &from);
     typedef void (*vector3Func)(int i, btVector3 &to, const btVector3 &from);
@@ -180,16 +183,16 @@ public:
     
     VertexBufferObject &operator=(const VertexBufferObject &rhs);
     
-    void loadGLSL(const IDType shaderFactoryID, const IDType materialFactoryID[TEXTURE_MAX]);
-    void loadGLSL(const IDType shaderFactoryID,
-                  const IDType materialFactoryID0,
-                  const IDType materialFactoryID1 = 0,
-                  const IDType materialFactoryID2 = 0,
-                  const IDType materialFactoryID3 = 0,
-                  const IDType materialFactoryID4 = 0,
-                  const IDType materialFactoryID5 = 0,
-                  const IDType materialFactoryID6 = 0,
-                  const IDType materialFactoryID7 = 0);
+//    void loadGLSL(const IDType shaderFactoryID, const IDType materialFactoryID[TEXTURE_MAX]);
+//    void loadGLSL(const IDType shaderFactoryID,
+//                  const IDType materialFactoryID0,
+//                  const IDType materialFactoryID1 = 0,
+//                  const IDType materialFactoryID2 = 0,
+//                  const IDType materialFactoryID3 = 0,
+//                  const IDType materialFactoryID4 = 0,
+//                  const IDType materialFactoryID5 = 0,
+//                  const IDType materialFactoryID6 = 0,
+//                  const IDType materialFactoryID7 = 0);
     
     
     template<class VERTEX_ATTRIBUTE>
@@ -403,6 +406,10 @@ GLboolean VertexBufferObject::loadGLBuffer(const btAlignedObjectArray<VERTEX_ATT
         
         m_GLSLUniforms.modelViewMatrix = glGetUniformLocation(program, "modelViewMatrix");check_gl_error()
         m_GLSLUniforms.projectionMatrix = glGetUniformLocation(program, "projectionMatrix");check_gl_error()
+        
+        for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
+            if(getMaterial(textureIndex))
+                getMaterial(textureIndex)->loadGLSL(this, textureIndex);
         
         glEnableVertexAttribArray(m_GLSLAttributes.position);check_gl_error()
         glVertexAttribPointer(m_GLSLAttributes.position,

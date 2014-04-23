@@ -16,7 +16,7 @@
 #include "EntityFactory.h"
 
 const unsigned int TEXTURE_MAX = 8;
-const unsigned int MAX_INSTANCES = 1000;
+//const unsigned int MAX_INSTANCES = 1000;
 
 #if defined(DEBUG) || defined (_DEBUG)
 void _check_gl_error(const char *file, int line, const char *function)
@@ -107,9 +107,11 @@ VertexBufferObject::VertexBufferObject():
 m_NumTextures(0),
 m_NumVertices(0),
 m_NumIndices(0),
-modelview(0),
+m_modelviewBuffer(0),
 m_vertexBuffer(0),
 m_indexBuffer(0),
+modelview(NULL),
+m_NumInstances(0),
 m_ShouldRender(GL_FALSE),
 m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
 m_ShaderFactoryID(0),
@@ -117,7 +119,8 @@ m_Stride(0),
 m_PositionOffset(0),
 m_NormalOffset(0),
 m_ColorOffset(0),
-m_TextureOffset(new size_t[TEXTURE_MAX])
+m_TextureOffset(new size_t[TEXTURE_MAX]),
+m_MatrixBuffer(new GLfloat[16])
 {
     memset(m_MaterialFactoryIDs, 0, sizeof(IDType) * TEXTURE_MAX);
     memset(m_TextureOffset, 0, sizeof(GLsizei) * TEXTURE_MAX);
@@ -131,17 +134,20 @@ VertexBufferObject::VertexBufferObject(const VertexBufferObject &rhs):
 m_NumTextures(rhs.m_NumTextures),
 m_NumVertices(rhs.m_NumVertices),
 m_NumIndices(rhs.m_NumIndices),
-modelview(0),
-m_vertexBuffer(0),
-m_indexBuffer(0),
-m_ShouldRender(GL_FALSE),
+m_modelviewBuffer(rhs.m_modelviewBuffer),
+m_vertexBuffer(rhs.m_vertexBuffer),
+m_indexBuffer(rhs.m_indexBuffer),
+modelview(NULL),
+m_NumInstances(rhs.m_NumInstances),
+m_ShouldRender(rhs.m_ShouldRender),
 m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
-m_ShaderFactoryID(0),
+m_ShaderFactoryID(rhs.m_ShaderFactoryID),
 m_Stride(rhs.m_Stride),
 m_PositionOffset(rhs.m_PositionOffset),
 m_NormalOffset(rhs.m_NormalOffset),
 m_ColorOffset(rhs.m_ColorOffset),
-m_TextureOffset(new size_t[TEXTURE_MAX])
+m_TextureOffset(new size_t[TEXTURE_MAX]),
+m_MatrixBuffer(new GLfloat[16])
 {
     memcpy(m_MaterialFactoryIDs, rhs.m_MaterialFactoryIDs, sizeof(IDType) * TEXTURE_MAX);
     memcpy(m_TextureOffset, rhs.m_TextureOffset, sizeof(size_t) * TEXTURE_MAX);
@@ -155,9 +161,11 @@ VertexBufferObject::VertexBufferObject(const VertexBufferObjectInfo &info):
 m_NumTextures(0),
 m_NumVertices(0),
 m_NumIndices(0),
-modelview(0),
+m_modelviewBuffer(0),
 m_vertexBuffer(0),
 m_indexBuffer(0),
+modelview(NULL),
+m_NumInstances(0),
 m_ShouldRender(GL_FALSE),
 m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
 m_ShaderFactoryID(0),
@@ -165,13 +173,20 @@ m_Stride(0),
 m_PositionOffset(0),
 m_NormalOffset(0),
 m_ColorOffset(0),
-m_TextureOffset(new size_t[TEXTURE_MAX])
+m_TextureOffset(new size_t[TEXTURE_MAX]),
+m_MatrixBuffer(new GLfloat[16])
 {
+    memset(m_MaterialFactoryIDs, 0, sizeof(IDType) * TEXTURE_MAX);
+    memset(m_TextureOffset, 0, sizeof(GLsizei) * TEXTURE_MAX);
+    
     setName(info.m_viewObjectName);
 }
 
 VertexBufferObject::~VertexBufferObject()
 {
+    delete [] m_MatrixBuffer;
+    m_MatrixBuffer = NULL;
+    
     unLoadGLBuffer();
     
     delete [] m_TextureOffset;
@@ -184,78 +199,82 @@ VertexBufferObject::~VertexBufferObject()
 VertexBufferObject &VertexBufferObject::operator=(const VertexBufferObject &rhs)
 {
     if(this != &rhs)
-    {
+    {   
         m_NumTextures = rhs.m_NumTextures;
         m_NumVertices = rhs.m_NumVertices;
         m_NumIndices = rhs.m_NumIndices;
-        
-        modelview = 0;
-        m_vertexBuffer = 0;
-        m_indexBuffer = 0;
-        m_ShouldRender = GL_FALSE;
-        memcpy(m_MaterialFactoryIDs, rhs.m_MaterialFactoryIDs, sizeof(IDType) * TEXTURE_MAX);
-        
-        m_ShaderFactoryID = 0;
+        m_modelviewBuffer = rhs.m_modelviewBuffer;
+        m_vertexBuffer = rhs.m_vertexBuffer;
+        m_indexBuffer = rhs.m_indexBuffer;
+        modelview = NULL;
+        m_NumInstances = rhs.m_NumInstances;
+        m_ShouldRender = rhs.m_ShouldRender;
+        m_ShaderFactoryID = rhs.m_ShaderFactoryID;
         m_Stride = rhs.m_Stride;
         m_PositionOffset = rhs.m_PositionOffset;
         m_NormalOffset = rhs.m_NormalOffset;
         m_ColorOffset = rhs.m_ColorOffset;
         
+        memcpy(m_MaterialFactoryIDs, rhs.m_MaterialFactoryIDs, sizeof(IDType) * TEXTURE_MAX);
         memcpy(m_TextureOffset, rhs.m_TextureOffset, sizeof(size_t) * TEXTURE_MAX);
+        
+        delete [] modelview;
+        
+        //TODO: load a copy of the buffer.
     }
     return *this;
 }
 
-void VertexBufferObject::loadGLSL(const IDType shaderFactoryID, const IDType materialFactoryID[TEXTURE_MAX])
-{
-    loadGLSL(shaderFactoryID,
-             materialFactoryID[0],
-             materialFactoryID[1],
-             materialFactoryID[2],
-             materialFactoryID[3],
-             materialFactoryID[4],
-             materialFactoryID[5],
-             materialFactoryID[6],
-             materialFactoryID[7]);
-}
-
-
-void VertexBufferObject::loadGLSL(const IDType shaderFactoryID,
-                                  const IDType materialFactoryID0,
-                                  const IDType materialFactoryID1,
-                                  const IDType materialFactoryID2,
-                                  const IDType materialFactoryID3,
-                                  const IDType materialFactoryID4,
-                                  const IDType materialFactoryID5,
-                                  const IDType materialFactoryID6,
-                                  const IDType materialFactoryID7)
-{
-    
-    
-    m_MaterialFactoryIDs[0] = materialFactoryID0;
-    m_MaterialFactoryIDs[1] = materialFactoryID1;
-    m_MaterialFactoryIDs[2] = materialFactoryID2;
-    m_MaterialFactoryIDs[3] = materialFactoryID3;
-    m_MaterialFactoryIDs[4] = materialFactoryID4;
-    m_MaterialFactoryIDs[5] = materialFactoryID5;
-    m_MaterialFactoryIDs[6] = materialFactoryID6;
-    m_MaterialFactoryIDs[7] = materialFactoryID7;
-    
-    
-    
-    GLuint program = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
-    
-    glUseProgram(program);
-    
-    
-    
-    
-    
-    for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-        getMaterial(textureIndex)->loadGLSL(this, textureIndex);
-    
-    glUseProgram(0);
-}
+//void VertexBufferObject::loadGLSL(const IDType shaderFactoryID, const IDType materialFactoryID[TEXTURE_MAX])
+//{
+//    loadGLSL(shaderFactoryID,
+//             materialFactoryID[0],
+//             materialFactoryID[1],
+//             materialFactoryID[2],
+//             materialFactoryID[3],
+//             materialFactoryID[4],
+//             materialFactoryID[5],
+//             materialFactoryID[6],
+//             materialFactoryID[7]);
+//}
+//
+//
+//void VertexBufferObject::loadGLSL(const IDType shaderFactoryID,
+//                                  const IDType materialFactoryID0,
+//                                  const IDType materialFactoryID1,
+//                                  const IDType materialFactoryID2,
+//                                  const IDType materialFactoryID3,
+//                                  const IDType materialFactoryID4,
+//                                  const IDType materialFactoryID5,
+//                                  const IDType materialFactoryID6,
+//                                  const IDType materialFactoryID7)
+//{
+//    
+//    
+//    m_MaterialFactoryIDs[0] = materialFactoryID0;
+//    m_MaterialFactoryIDs[1] = materialFactoryID1;
+//    m_MaterialFactoryIDs[2] = materialFactoryID2;
+//    m_MaterialFactoryIDs[3] = materialFactoryID3;
+//    m_MaterialFactoryIDs[4] = materialFactoryID4;
+//    m_MaterialFactoryIDs[5] = materialFactoryID5;
+//    m_MaterialFactoryIDs[6] = materialFactoryID6;
+//    m_MaterialFactoryIDs[7] = materialFactoryID7;
+//    
+//    
+//    
+//    GLuint program = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
+//    
+//    glUseProgram(program);
+//    
+//    
+//    
+//    
+//    
+//    for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
+//        getMaterial(textureIndex)->loadGLSL(this, textureIndex);
+//    
+//    glUseProgram(0);
+//}
 
 
 GLboolean VertexBufferObject::unLoadGLBuffer()
@@ -384,19 +403,23 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
 #if defined(DEBUG) || defined (_DEBUG)
     glPushGroupMarkerEXT(0, getName().c_str());
 #endif
+    
     GLuint program = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
     
     glUseProgram(program);check_gl_error()
     
     BaseCamera *pCamera = CameraFactory::getInstance()->getCurrentCamera();
     
-    GLfloat *m = new GLfloat[16];
-    pCamera->getProjection2().getOpenGLMatrix(m);
-    glUniformMatrix4fv(m_GLSLUniforms.projectionMatrix, 1, 0, m);check_gl_error()
+    GLfloat *m_MatrixBuffer = new GLfloat[16];
+    pCamera->getProjection2().getOpenGLMatrix(m_MatrixBuffer);
+    glUniformMatrix4fv(m_GLSLUniforms.projectionMatrix, 1, 0, m_MatrixBuffer);check_gl_error()
     
-    pCamera->getWorldTransform().inverse().getOpenGLMatrix(m);
-    glUniformMatrix4fv(m_GLSLUniforms.modelViewMatrix, 1, 0, m);check_gl_error()
-    delete [] m;
+    pCamera->getWorldTransform().inverse().getOpenGLMatrix(m_MatrixBuffer);
+    glUniformMatrix4fv(m_GLSLUniforms.modelViewMatrix, 1, 0, m_MatrixBuffer);check_gl_error()
+    
+    for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
+        if(getMaterial(textureIndex))
+            getMaterial(textureIndex)->render(this, textureIndex);
 
     updateGLBuffer();
 	
