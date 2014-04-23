@@ -65,15 +65,12 @@ public AbstractFactoryObject
     {
         UniformHandles():
         modelViewMatrix(-1),
-        projectionMatrix(-1),
-        modelMatrix(-1)
+        projectionMatrix(-1)
         {
         }
         
-        
         GLuint modelViewMatrix;
         GLuint projectionMatrix;
-        GLuint modelMatrix;
     }m_GLSLUniforms;
     
     unsigned int m_NumTextures;
@@ -88,28 +85,16 @@ public AbstractFactoryObject
     btAlignedObjectArray<IDType> m_BaseObjects;
     unsigned int m_NumInstances;
     
-//    GLuint m_VAO;
-//    GLuint m_VBO;
-//    GLuint m_IB;
-    
     GLboolean m_ShouldRender;
     
     IDType *m_MaterialFactoryIDs;
     IDType m_ShaderFactoryID;
     
     GLsizei m_Stride;
-    
     size_t m_PositionOffset;
-//    size_t m_WorldTransformOffset;
     size_t m_NormalOffset;
     size_t m_ColorOffset;
     size_t *m_TextureOffset;
-    
-    VBOTransformQueue *m_VBOTransformQueue;
-    
-    unsigned int m_MinNumberOfVertexBufferObjects;
-    
-    BaseEntity *temp;
 private:
     typedef void (*vector2Func)(int i, btVector2 &to, const btVector2 &from);
     typedef void (*vector3Func)(int i, btVector3 &to, const btVector3 &from);
@@ -119,7 +104,6 @@ private:
     void updateGLBuffer();
 protected:
     virtual void updateGLBufferPosition(int i, btVector3 &to, const btVector3 &from);
-    virtual void updateGLBufferWorldTransform(int i, btTransform &to, const btTransform &from);
     virtual void updateGLBufferNormal(int i, btVector3 &to, const btVector3 &from){}
     virtual void updateGLBufferColor(int i, btVector4 &to, const btVector4 &from){}
     virtual void updateGLBufferTexture(int i, int textureIndex, btVector2 &to, const btVector2 &from){}
@@ -134,11 +118,6 @@ public:
     {
         return m_PositionOffset;
     }
-    
-//    SIMD_FORCE_INLINE const size_t getWorldTransformOffset(const unsigned int row)const
-//    {
-//        return (m_WorldTransformOffset + (sizeof(float) * (row * 4)));
-//    }
     
     SIMD_FORCE_INLINE const size_t getNormalOffset()const
     {
@@ -360,23 +339,6 @@ public:
     }
 };
 
-//enum eAttributes
-//{
-//	ATTRIB_POSITION,
-//    ATTRIB_COLOR,
-////    ATTRIB_NORMAL,
-//	ATTRIB_TRANSFORMMATRIX,
-////    ATTRIB_TEXTURE0,
-////    ATTRIB_TEXTURE1,
-////    ATTRIB_TEXTURE2,
-////    ATTRIB_TEXTURE3,
-////    ATTRIB_TEXTURE4,
-////    ATTRIB_TEXTURE5,
-////    ATTRIB_TEXTURE6,
-////    ATTRIB_TEXTURE7,
-//    NUM_ATTRIBUTES
-//};
-
 template<class VERTEX_ATTRIBUTE>
 GLboolean VertexBufferObject::loadGLBuffer(const btAlignedObjectArray<VERTEX_ATTRIBUTE> &vertices,
                                            const btAlignedObjectArray<GLushort> &indices,
@@ -385,188 +347,117 @@ GLboolean VertexBufferObject::loadGLBuffer(const btAlignedObjectArray<VERTEX_ATT
 {
     GLboolean ret = GL_FALSE;
     
-    m_ShaderFactoryID = shader_factory_id;
+    unLoadGLBuffer();
     
-    m_NumInstances = num_instances;
-    m_NumVertices = vertices.size();
-    m_NumIndices = indices.size();
-    
-    m_Stride = VERTEX_ATTRIBUTE::getStride();
-    
-    m_PositionOffset = VERTEX_ATTRIBUTE::getPositionOffset();
-    m_NormalOffset = VERTEX_ATTRIBUTE::getNormalOffset();
-    m_ColorOffset = VERTEX_ATTRIBUTE::getColorOffset();
-    
-    m_NumTextures = 0;
-    for(int textureIndex = 0; textureIndex < TEXTURE_MAX; ++textureIndex)
+    if(vertices.size() > 0)
     {
-        m_TextureOffset[textureIndex] = VERTEX_ATTRIBUTE::getTextureOffset(textureIndex);
-        if(hasTextureAttribute(textureIndex))
-            ++m_NumTextures;
-    }
-    
-    GLuint program = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
-    
-    const char *const textureCoord[]  =
-    {
-        "textureCoord0",
-        "textureCoord1",
-        "textureCoord2",
-        "textureCoord3",
-        "textureCoord4",
-        "textureCoord5",
-        "textureCoord6",
-        "textureCoord7"
-    };
-    
-    m_GLSLAttributes.position = glGetAttribLocation(program, "position");
-    m_GLSLAttributes.color = glGetAttribLocation(program, "sourceColor");
-    m_GLSLAttributes.transformmatrix = glGetAttribLocation(program, "transformmatrix");
-    
-    m_GLSLUniforms.modelViewMatrix = glGetUniformLocation(program, "modelViewMatrix");check_gl_error()
-    m_GLSLUniforms.projectionMatrix = glGetUniformLocation(program, "projectionMatrix");check_gl_error()
-//    m_GLSLUniforms.modelMatrix = glGetUniformLocation(program, "modelMatrix");check_gl_error();
-    
-    
-    glGenBuffers(1, &m_vertexBuffer);check_gl_error()
-	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);check_gl_error()
-    glBufferData(GL_ARRAY_BUFFER,
-                 m_NumVertices * sizeof(vertices[0]),
-                 &vertices[0],
-                 GL_STATIC_DRAW);check_gl_error()
-    
-    glEnableVertexAttribArray(m_GLSLAttributes.position);check_gl_error()
-    glVertexAttribPointer(m_GLSLAttributes.position,
-                          4, GL_FLOAT, GL_FALSE,
-                          getStride(),
-                          (const GLvoid*)getPositionOffset());check_gl_error()
-	
-    
-    if(getColorOffset())
-    {
-        glEnableVertexAttribArray(m_GLSLAttributes.color);check_gl_error()
-        glVertexAttribPointer(m_GLSLAttributes.color,
+        m_NumInstances = num_instances;
+        m_NumVertices = vertices.size();
+        m_NumIndices = indices.size();
+        
+        m_Stride = VERTEX_ATTRIBUTE::getStride();
+        
+        m_PositionOffset = VERTEX_ATTRIBUTE::getPositionOffset();
+        m_NormalOffset = VERTEX_ATTRIBUTE::getNormalOffset();
+        m_ColorOffset = VERTEX_ATTRIBUTE::getColorOffset();
+        
+        m_NumTextures = 0;
+        for(int textureIndex = 0; textureIndex < TEXTURE_MAX; ++textureIndex)
+        {
+            m_TextureOffset[textureIndex] = VERTEX_ATTRIBUTE::getTextureOffset(textureIndex);
+            if(hasTextureAttribute(textureIndex))
+                ++m_NumTextures;
+        }
+        
+        glGenBuffers(1, &m_vertexBuffer);check_gl_error()
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);check_gl_error()
+        glBufferData(GL_ARRAY_BUFFER,
+                     m_NumVertices * sizeof(vertices[0]),
+                     &vertices[0],
+                     GL_STATIC_DRAW);check_gl_error()
+        
+        m_ShaderFactoryID = shader_factory_id;
+        
+        GLuint program = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
+        
+        const char *const textureCoord[]  =
+        {
+            "textureCoord0",
+            "textureCoord1",
+            "textureCoord2",
+            "textureCoord3",
+            "textureCoord4",
+            "textureCoord5",
+            "textureCoord6",
+            "textureCoord7"
+        };
+        
+        m_GLSLAttributes.position = glGetAttribLocation(program, "position");
+        m_GLSLAttributes.color = glGetAttribLocation(program, "sourceColor");
+        m_GLSLAttributes.transformmatrix = glGetAttribLocation(program, "transformmatrix");
+        m_GLSLAttributes.normal = glGetAttribLocation(program, "normal");
+        for(int textureIndex = 0; textureIndex < TEXTURE_MAX; ++textureIndex)
+            m_GLSLAttributes.textureCoord[textureIndex] = glGetAttribLocation(program, textureCoord[textureIndex]);
+        
+        m_GLSLUniforms.modelViewMatrix = glGetUniformLocation(program, "modelViewMatrix");check_gl_error()
+        m_GLSLUniforms.projectionMatrix = glGetUniformLocation(program, "projectionMatrix");check_gl_error()
+        
+        glEnableVertexAttribArray(m_GLSLAttributes.position);check_gl_error()
+        glVertexAttribPointer(m_GLSLAttributes.position,
                               4, GL_FLOAT, GL_FALSE,
                               getStride(),
-                              (const GLvoid*)getColorOffset());check_gl_error()
+                              (const GLvoid*)getPositionOffset());check_gl_error()
+        if(getColorOffset())
+        {
+            glEnableVertexAttribArray(m_GLSLAttributes.color);check_gl_error()
+            glVertexAttribPointer(m_GLSLAttributes.color,
+                                  4, GL_FLOAT, GL_FALSE,
+                                  getStride(),
+                                  (const GLvoid*)getColorOffset());check_gl_error()
+        }
+        
+        if(getNormalOffset())
+        {
+            glEnableVertexAttribArray(m_GLSLAttributes.normal);check_gl_error()
+            glVertexAttribPointer(m_GLSLAttributes.normal,
+                                  4, GL_FLOAT, GL_FALSE,
+                                  getStride(),
+                                  (const GLvoid*)getNormalOffset());check_gl_error()
+        }
+        
+        for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
+        {
+            if(getTextureOffset(textureIndex))
+            {
+                glEnableVertexAttribArray(m_GLSLAttributes.textureCoord[textureIndex]);check_gl_error()
+                glVertexAttribPointer(m_GLSLAttributes.textureCoord[textureIndex], 2, GL_FLOAT, GL_FALSE,
+                                      getStride(),
+                                      (const GLvoid*)getTextureOffset(textureIndex));check_gl_error()
+            }
+        }
+        
+        modelview = new GLfloat[m_NumInstances * m_NumVertices * 16];
+        
+        memset(modelview, 0, m_NumInstances * m_NumVertices * 16 * sizeof(GLfloat));
+        
+        glGenBuffers(1, &m_modelviewBuffer);check_gl_error()
+        glBindBuffer(GL_ARRAY_BUFFER, m_modelviewBuffer);check_gl_error()
+        glBufferData(GL_ARRAY_BUFFER, m_NumInstances * m_NumVertices * 16 * sizeof(GLfloat), modelview, GL_STREAM_DRAW);check_gl_error()
+        
+        glGenBuffers(1, &m_indexBuffer);check_gl_error()
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);check_gl_error()
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     m_NumIndices * sizeof(indices[0]),
+                     &indices[0],
+                     GL_DYNAMIC_DRAW);check_gl_error()
+        
+        ret = GL_TRUE;
+        
+#if defined(DEBUG) || defined (_DEBUG)
+        glLabelObjectEXT(GL_VERTEX_ARRAY_OBJECT_EXT, m_vertexBuffer, 0, getName().c_str());
+#endif
+        
     }
-    
-//    if(getNormalOffset())
-//    {
-//        glEnableVertexAttribArray(ATTRIB_NORMAL);check_gl_error()
-//        glVertexAttribPointer(ATTRIB_NORMAL,
-//                              4, GL_FLOAT, GL_FALSE,
-//                              getStride(),
-//                              (const GLvoid*)getNormalOffset());check_gl_error()
-//    }
-    
-//    if(getTextureOffset(0))
-//    {
-//        glEnableVertexAttribArray(ATTRIB_TEXTURE0);check_gl_error()
-//        glVertexAttribPointer(ATTRIB_TEXTURE0, 2, GL_FLOAT, GL_FALSE,
-//                              getStride(),
-//                              (const GLvoid*)getTextureOffset(0));check_gl_error()
-//    }
-	
-    modelview = new GLfloat[m_NumInstances * m_NumVertices * 16];
-    
-    GLfloat m = std::numeric_limits<GLfloat>::max();
-    static const GLfloat identityMatrix[] =
-    {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        m, m, m, 1,
-    };
-    
-    for (int i = 0; i < m_NumInstances * m_NumVertices * 16; i += 16)
-	{
-		memcpy(&modelview[i], identityMatrix, sizeof(identityMatrix));
-	}
-	
-	glGenBuffers(1, &m_modelviewBuffer);check_gl_error()
-	glBindBuffer(GL_ARRAY_BUFFER, m_modelviewBuffer);check_gl_error()
-	glBufferData(GL_ARRAY_BUFFER, m_NumInstances * m_NumVertices * sizeof(modelview[0]), modelview, GL_STREAM_DRAW);check_gl_error()
-    
-	glGenBuffers(1, &m_indexBuffer);check_gl_error()
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);check_gl_error()
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 m_NumIndices * sizeof(indices[0]),
-                 &indices[0],
-                 GL_DYNAMIC_DRAW);check_gl_error()
-    
-    
-    
-    
-    
-//    GLboolean ret = GL_FALSE;
-//    
-//    unLoadGLBuffer();
-//    
-//    if(vertices.size() > 0)
-//    {
-//        m_NumInstances = num_instances;
-//        m_NumVertices = vertices.size();
-//        m_NumIndices = indices.size();
-//        
-//        m_Stride = VERTEX_ATTRIBUTE::getStride();
-//        
-//        m_PositionOffset = VERTEX_ATTRIBUTE::getPositionOffset();
-//        m_NormalOffset = VERTEX_ATTRIBUTE::getNormalOffset();
-//        m_ColorOffset = VERTEX_ATTRIBUTE::getColorOffset();
-//
-//        m_NumTextures = 0;
-//        for(int textureIndex = 0; textureIndex < TEXTURE_MAX; ++textureIndex)
-//        {
-//            m_TextureOffset[textureIndex] = VERTEX_ATTRIBUTE::getTextureOffset(textureIndex);
-//            if(hasTextureAttribute(textureIndex))
-//                ++m_NumTextures;
-//        }
-//
-//        glGenBuffers(1, &m_vertexBuffer);check_gl_error()
-//        glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);check_gl_error()
-//        glBufferData(GL_ARRAY_BUFFER,
-//                     m_NumVertices * sizeof(vertices[0]),
-//                     &vertices[0],
-//                     GL_STATIC_DRAW);check_gl_error()
-//        
-//
-//        
-//        GLfloat max = std::numeric_limits<GLfloat>::max();
-//        static const GLfloat identityMatrix[] =
-//        {
-//            1, 0, 0, 0,
-//            0, 1, 0, 0,
-//            0, 0, 1, 0,
-//            max, max, max, 1,
-//        };
-//        
-//        modelview = new GLfloat[m_NumInstances * m_NumVertices * 16];
-//        
-//        for (int i = 0; i < m_NumInstances * m_NumVertices * 16; i += 16)
-//        {
-//            memcpy(&modelview[i], identityMatrix, sizeof(identityMatrix));
-//        }
-//        
-//        glGenBuffers(1, &m_modelViewBuffer);check_gl_error()
-//        glBindBuffer(GL_ARRAY_BUFFER, m_modelViewBuffer);check_gl_error()
-//        glBufferData(GL_ARRAY_BUFFER, sizeof(modelview), modelview, GL_STREAM_DRAW);check_gl_error()
-//        
-//        if(m_NumIndices > 0)
-//        {
-//            glGenBuffers(1, &m_indexBuffer);check_gl_error()
-//            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);check_gl_error()
-//            glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-//                         m_NumIndices * sizeof(indices[0]),
-//                         &indices[0],
-//                         GL_DYNAMIC_DRAW);check_gl_error()
-//        }
-//        
-//#if defined(DEBUG) || defined (_DEBUG)
-//        glLabelObjectEXT(GL_VERTEX_ARRAY_OBJECT_EXT, m_vertexBuffer, 0, getName().c_str());
-//#endif
-//        ret = GL_TRUE;
-//    }
     
     return ret;
 }

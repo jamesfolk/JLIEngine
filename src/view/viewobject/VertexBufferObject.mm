@@ -44,7 +44,6 @@ void _check_gl_error(const char *file, int line, const char *function)
 
 void VertexBufferObject::updateGLBuffer()
 {
-//    return;
     const GLuint STRIDE = 64;
     
     btScalar identityTransform[] =
@@ -54,8 +53,6 @@ void VertexBufferObject::updateGLBuffer()
         0, 0, 1, 0,
         0, 0, 0, 1,
     };
-    
-    
     
 	glBindBuffer(GL_ARRAY_BUFFER, m_modelviewBuffer);check_gl_error()
     
@@ -86,10 +83,8 @@ void VertexBufferObject::updateGLBuffer()
             }
         }
 	}
-	
     
-    
-	glBufferSubData(GL_ARRAY_BUFFER, 0, m_NumInstances * m_NumVertices * sizeof(modelview[0]), modelview);check_gl_error()
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_NumInstances * m_NumVertices * 16 * sizeof(GLfloat), modelview);check_gl_error()
 	
 	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 0);check_gl_error()
 	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 1);check_gl_error()
@@ -107,18 +102,11 @@ void VertexBufferObject::updateGLBufferPosition(int i, btVector3 &to, const btVe
 {
     
 }
-void VertexBufferObject::updateGLBufferWorldTransform(int i, btTransform &to, const btTransform &from)
-{
-    to = (*m_VBOTransformQueue)[i];
-}
 
 VertexBufferObject::VertexBufferObject():
 m_NumTextures(0),
 m_NumVertices(0),
 m_NumIndices(0),
-//m_VAO(0),
-//m_VBO(0),
-//m_IB(0),
 modelview(0),
 m_vertexBuffer(0),
 m_indexBuffer(0),
@@ -127,12 +115,9 @@ m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
 m_ShaderFactoryID(0),
 m_Stride(0),
 m_PositionOffset(0),
-//m_WorldTransformOffset(0),
 m_NormalOffset(0),
 m_ColorOffset(0),
-m_TextureOffset(new size_t[TEXTURE_MAX]),
-m_VBOTransformQueue(new VBOTransformQueue()),
-m_MinNumberOfVertexBufferObjects(100)
+m_TextureOffset(new size_t[TEXTURE_MAX])
 {
     memset(m_MaterialFactoryIDs, 0, sizeof(IDType) * TEXTURE_MAX);
     memset(m_TextureOffset, 0, sizeof(GLsizei) * TEXTURE_MAX);
@@ -146,9 +131,6 @@ VertexBufferObject::VertexBufferObject(const VertexBufferObject &rhs):
 m_NumTextures(rhs.m_NumTextures),
 m_NumVertices(rhs.m_NumVertices),
 m_NumIndices(rhs.m_NumIndices),
-//m_VAO(0),
-//m_VBO(0),
-//m_IB(0),
 modelview(0),
 m_vertexBuffer(0),
 m_indexBuffer(0),
@@ -157,12 +139,9 @@ m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
 m_ShaderFactoryID(0),
 m_Stride(rhs.m_Stride),
 m_PositionOffset(rhs.m_PositionOffset),
-//m_WorldTransformOffset(rhs.m_WorldTransformOffset),
 m_NormalOffset(rhs.m_NormalOffset),
 m_ColorOffset(rhs.m_ColorOffset),
-m_TextureOffset(new size_t[TEXTURE_MAX]),
-m_VBOTransformQueue(new VBOTransformQueue()),
-m_MinNumberOfVertexBufferObjects(100)
+m_TextureOffset(new size_t[TEXTURE_MAX])
 {
     memcpy(m_MaterialFactoryIDs, rhs.m_MaterialFactoryIDs, sizeof(IDType) * TEXTURE_MAX);
     memcpy(m_TextureOffset, rhs.m_TextureOffset, sizeof(size_t) * TEXTURE_MAX);
@@ -176,9 +155,6 @@ VertexBufferObject::VertexBufferObject(const VertexBufferObjectInfo &info):
 m_NumTextures(0),
 m_NumVertices(0),
 m_NumIndices(0),
-//m_VAO(0),
-//m_VBO(0),
-//m_IB(0),
 modelview(0),
 m_vertexBuffer(0),
 m_indexBuffer(0),
@@ -187,12 +163,9 @@ m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
 m_ShaderFactoryID(0),
 m_Stride(0),
 m_PositionOffset(0),
-//m_WorldTransformOffset(0),
 m_NormalOffset(0),
 m_ColorOffset(0),
-m_TextureOffset(new size_t[TEXTURE_MAX]),
-m_VBOTransformQueue(new VBOTransformQueue()),
-m_MinNumberOfVertexBufferObjects(info.m_MinNumberOfVertexBufferObjects)
+m_TextureOffset(new size_t[TEXTURE_MAX])
 {
     setName(info.m_viewObjectName);
 }
@@ -200,9 +173,6 @@ m_MinNumberOfVertexBufferObjects(info.m_MinNumberOfVertexBufferObjects)
 VertexBufferObject::~VertexBufferObject()
 {
     unLoadGLBuffer();
-    
-    delete m_VBOTransformQueue;
-    m_VBOTransformQueue = NULL;
     
     delete [] m_TextureOffset;
     m_TextureOffset = NULL;
@@ -215,17 +185,10 @@ VertexBufferObject &VertexBufferObject::operator=(const VertexBufferObject &rhs)
 {
     if(this != &rhs)
     {
-        delete m_VBOTransformQueue;
-        
-        m_VBOTransformQueue = new VBOTransformQueue();
-        
         m_NumTextures = rhs.m_NumTextures;
         m_NumVertices = rhs.m_NumVertices;
         m_NumIndices = rhs.m_NumIndices;
         
-//        m_VAO = 0;
-//        m_VBO = 0;
-//        m_IB = 0;
         modelview = 0;
         m_vertexBuffer = 0;
         m_indexBuffer = 0;
@@ -235,7 +198,6 @@ VertexBufferObject &VertexBufferObject::operator=(const VertexBufferObject &rhs)
         m_ShaderFactoryID = 0;
         m_Stride = rhs.m_Stride;
         m_PositionOffset = rhs.m_PositionOffset;
-//        m_WorldTransformOffset = rhs.m_WorldTransformOffset;
         m_NormalOffset = rhs.m_NormalOffset;
         m_ColorOffset = rhs.m_ColorOffset;
         
@@ -395,40 +357,35 @@ void VertexBufferObject::loadGLSL(const IDType shaderFactoryID,
 
 
 GLboolean VertexBufferObject::unLoadGLBuffer()
-{
-    m_VBOTransformQueue->unInit();
+{   
+    delete [] modelview;
+    modelview = NULL;
     
-//    m_vertexBuffer(0),
-//    m_indexBuffer(0),
+    if(0 != m_indexBuffer)
+    {
+        glDeleteBuffers(1, &m_indexBuffer);check_gl_error()
+        m_indexBuffer = 0;
+    }
     
-//    if(0 != m_IB)
-//    {
-//        glDeleteBuffers(1, &m_IB);check_gl_error()
-//        m_IB = 0;
-//    }
-//    
-//    if(0 != m_VBO)
-//    {
-//        glDeleteBuffers(1, &m_VBO);check_gl_error()
-//        m_VBO = 0;
-//    }
-//    
-//    if(0 != m_VAO)
-//    {
-//        glDeleteVertexArraysOES(1, &m_VAO);check_gl_error()
-//        m_VAO = 0;
-//    }
-//    
-//    return ((m_VAO == 0) && (m_VBO == 0));
+    if(0 != m_modelviewBuffer)
+    {
+        glDeleteBuffers(1, &m_modelviewBuffer);check_gl_error()
+        m_modelviewBuffer = 0;
+    }
+    
+    if(0 != m_vertexBuffer)
+    {
+        glDeleteVertexArraysOES(1, &m_vertexBuffer);check_gl_error()
+        m_vertexBuffer = 0;
+    }
+    
+    return ((m_vertexBuffer == 0) && (m_modelviewBuffer == 0) && (m_indexBuffer == 0));
 }
 
 GLboolean VertexBufferObject::isGLBufferLoaded()const
 {
-//    return !((m_VAO == 0) && (m_VBO == 0));
-    return true;
+    return !((m_vertexBuffer == 0) && (m_modelviewBuffer == 0) && (m_indexBuffer == 0));
 }
-
-
 
 void VertexBufferObject::updateGLBuffer(bool position,
                                         bool normal,
@@ -617,9 +574,8 @@ bool VertexBufferObject::unRegisterEntity(BaseEntity *entity)
 }
 void VertexBufferObject::render(BaseEntity *entity)
 {
-    if(m_VBOTransformQueue->render(entity))
-        m_ShouldRender = GL_TRUE;
-    temp = entity;
+    m_ShouldRender = GL_TRUE;
+//    temp = entity;
 }
 const VBOMaterial*	VertexBufferObject::getMaterial(unsigned int index) const
 {
