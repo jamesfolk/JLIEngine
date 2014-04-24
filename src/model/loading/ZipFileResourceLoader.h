@@ -369,7 +369,7 @@ public:
                       GLenum indice_usage = GL_DYNAMIC_DRAW,
                       GLenum array_usage = GL_DYNAMIC_DRAW)const = 0;
     
-    virtual void loadGLBuffer(VertexBufferObject *vbo, IDType shader_factory_id)const = 0;
+    virtual void loadGLBuffer(const unsigned int num_instances, VertexBufferObject *vbo, IDType shader_factory_id)const = 0;
     
     BaseMeshObject &operator=(const BaseMeshObject &rhs)
     {
@@ -474,7 +474,7 @@ public:
                       GLenum indice_usage = GL_DYNAMIC_DRAW,
                       GLenum array_usage = GL_DYNAMIC_DRAW)const;
     
-    virtual void loadGLBuffer(VertexBufferObject *vbo, IDType shader_factory_id)const;
+    virtual void loadGLBuffer(const unsigned int num_instances, VertexBufferObject *vbo, IDType shader_factory_id)const;
     
     MeshObject &operator=(const MeshObject &rhs)
     {
@@ -716,9 +716,9 @@ void MeshObject<VERTEX_ATTRIBUTE>::load(BaseViewObject *vo,
 }
 
 template <class VERTEX_ATTRIBUTE>
-void MeshObject<VERTEX_ATTRIBUTE>::loadGLBuffer(VertexBufferObject *vbo, IDType shader_factory_id)const
+void MeshObject<VERTEX_ATTRIBUTE>::loadGLBuffer(const unsigned int num_instances, VertexBufferObject *vbo, IDType shader_factory_id)const
 {
-    vbo->loadGLBuffer(m_VertexAttributes, m_Indices, shader_factory_id);
+    vbo->loadGLBuffer(num_instances, m_VertexAttributes, m_Indices, shader_factory_id);
 }
 
 

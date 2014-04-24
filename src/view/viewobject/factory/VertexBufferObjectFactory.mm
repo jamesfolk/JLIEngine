@@ -9,7 +9,8 @@
 #include "VertexBufferObjectFactory.h"
 #include "ZipFileResourceLoader.h"
 
-IDType VertexBufferObjectFactory::createViewObject(const std::string &zipfile_object_name,
+IDType VertexBufferObjectFactory::createViewObject(unsigned int num_instances,
+                                                   const std::string &zipfile_object_name,
                                                    IDType texture_factory_id,
                                                    IDType shader_factory_id)
 {
@@ -20,7 +21,7 @@ IDType VertexBufferObjectFactory::createViewObject(const std::string &zipfile_ob
     const BaseMeshObject *bmo = ZipFileResourceLoader::getInstance()->getMeshObject(zipfile_object_name);
     btAssert(bmo);
     
-    bmo->loadGLBuffer(vbo, shader_factory_id);
+    bmo->loadGLBuffer(num_instances, vbo, shader_factory_id);
     
     delete info;
     info = NULL;

@@ -25,7 +25,8 @@ public AbstractFactory<VertexBufferObjectFactory, VertexBufferObjectInfo, Vertex
     VertexBufferObjectFactory(){}
     virtual ~VertexBufferObjectFactory(){}
 public:
-    static IDType createViewObject(const std::string &zipfile_object_name,
+    static IDType createViewObject(unsigned int num_instances,
+                                   const std::string &zipfile_object_name,
                                    IDType texture_factory_id,
                                    IDType shader_factory_id);
 protected:

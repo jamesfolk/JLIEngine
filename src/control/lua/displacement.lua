@@ -41,7 +41,7 @@ function GGJ.getMeshID(self, name)
 end
 
 function GGJ.createViewObject(self, name, textureID, shaderID)
-    self.meshIDs[name] = jli.VertexBufferObjectFactory_createViewObject(name, textureID, shaderID)
+    self.meshIDs[name] = jli.VertexBufferObjectFactory_createViewObject(6, name, textureID, shaderID)
 end
 
 

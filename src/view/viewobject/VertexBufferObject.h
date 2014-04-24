@@ -196,10 +196,10 @@ public:
     
     
     template<class VERTEX_ATTRIBUTE>
-    GLboolean loadGLBuffer(const btAlignedObjectArray<VERTEX_ATTRIBUTE> &vertices,
+    GLboolean loadGLBuffer(const unsigned int num_instances,
+                           const btAlignedObjectArray<VERTEX_ATTRIBUTE> &vertices,
                            const btAlignedObjectArray<GLushort> &indices,
-                           IDType shader_factory_id,
-                           const unsigned int num_instances = 1);
+                           IDType shader_factory_id);
     virtual GLboolean unLoadGLBuffer();
     virtual GLboolean isGLBufferLoaded()const;
     
@@ -343,10 +343,10 @@ public:
 };
 
 template<class VERTEX_ATTRIBUTE>
-GLboolean VertexBufferObject::loadGLBuffer(const btAlignedObjectArray<VERTEX_ATTRIBUTE> &vertices,
+GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
+                                           const btAlignedObjectArray<VERTEX_ATTRIBUTE> &vertices,
                                            const btAlignedObjectArray<GLushort> &indices,
-                                           IDType shader_factory_id,
-                                           const unsigned int num_instances)
+                                           IDType shader_factory_id)
 {
     GLboolean ret = GL_FALSE;
     
