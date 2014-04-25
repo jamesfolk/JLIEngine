@@ -1159,7 +1159,7 @@ GLvoid BaseViewObject::setup(const GLuint programHandle)const
         }
         
         attrib = glGetAttribLocation(programHandle, GLSL_ATTRIBUTE_position);check_gl_error()
-        if(attrib != GL_INVALID_VALUE)
+        if(attrib != -1)
         {
             glEnableVertexAttribArray(attrib);check_gl_error()
             glVertexAttribPointer(attrib, 4, GL_FLOAT, GL_FALSE,
@@ -1170,7 +1170,7 @@ GLvoid BaseViewObject::setup(const GLuint programHandle)const
         if(hasColorAttribute())
         {
             attrib = glGetAttribLocation(programHandle, GLSL_ATTRIBUTE_color);check_gl_error()
-            if(attrib != GL_INVALID_VALUE)
+            if(attrib != -1)
             {
                 glEnableVertexAttribArray(attrib);check_gl_error()
                 glVertexAttribPointer(attrib, 4, GL_FLOAT, GL_FALSE,
@@ -1182,7 +1182,7 @@ GLvoid BaseViewObject::setup(const GLuint programHandle)const
         if(hasNormalAttribute())
         {
             attrib = glGetAttribLocation(programHandle, GLSL_ATTRIBUTE_normal);check_gl_error()
-            if(attrib != GL_INVALID_VALUE)
+            if(attrib != -1)
             {
                 glEnableVertexAttribArray(attrib);check_gl_error()
                 glVertexAttribPointer(attrib, 4, GL_FLOAT, GL_FALSE,
@@ -1196,7 +1196,7 @@ GLvoid BaseViewObject::setup(const GLuint programHandle)const
             if(hasTextureAttribute(i))
             {
                 attrib = glGetAttribLocation(programHandle, GLSL_ATTRIBUTE_textureCoord[i]);check_gl_error()
-                if(attrib != GL_INVALID_VALUE)
+                if(attrib != -1)
                 {
                     glEnableVertexAttribArray(attrib);check_gl_error()
                     glVertexAttribPointer(attrib, 2, GL_FLOAT, GL_FALSE,

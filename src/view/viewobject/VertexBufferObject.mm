@@ -426,7 +426,7 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);check_gl_error()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);check_gl_error()
     
-	glDrawElements(GL_TRIANGLES, m_NumInstances * m_NumVertices, GL_UNSIGNED_SHORT, 0);check_gl_error();
+	glDrawElements(drawmode, m_NumInstances * m_NumVertices, GL_UNSIGNED_SHORT, 0);check_gl_error();
 	
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);check_gl_error()
     glBindBuffer(GL_ARRAY_BUFFER, 0);check_gl_error()

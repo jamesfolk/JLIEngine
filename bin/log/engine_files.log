@@ -171,8 +171,6 @@
 #include "view/viewobject/factory/VertexBufferObjectFactoryIncludes.h"
 #include "view/viewobject/factory/ViewObjectFactory.h"
 #include "view/viewobject/factory/ViewObjectFactoryIncludes.h"
-#include "view/viewobject/VBOTransformQueue.h"
 #include "view/viewobject/VertexBufferObject.h"
-#include "view/viewobject/VertexBufferObject_OLD.h"
 #include "view/viewobject/ViewObjectTransformArray.h"
 #endif

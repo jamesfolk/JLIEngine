@@ -445,7 +445,7 @@ protected:
     btVector3 m_halfExtends;
     btTransform m_world_transform;
     
-    btAlignedObjectArray<unsigned short> m_Indices;
+    btAlignedObjectArray<GLushort> m_Indices;
     
 };
 

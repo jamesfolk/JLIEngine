@@ -40,8 +40,8 @@ function GGJ.getMeshID(self, name)
     return self.meshIDs[name]
 end
 
-function GGJ.createViewObject(self, name, textureID, shaderID)
-    self.meshIDs[name] = jli.VertexBufferObjectFactory_createViewObject(6, name, textureID, shaderID)
+function GGJ.createViewObject(self, amt, name, textureID, shaderID)
+    self.meshIDs[name] = jli.VertexBufferObjectFactory_createViewObject(amt, name, textureID, shaderID)
 end
 
 
@@ -207,19 +207,17 @@ function createCube(origin)
     local entityStateMachine = jli.EntityStateMachine.create()
     local textureID = ggj:getTextureID("cubetexture1")
     local viewObjectID = ggj:getMeshID("cube")
-    --get vertexBufferObject
-    
-    
-    
+
     --load the vertexBufferObject
     local shapeID = jli.CollisionShapeFactory_createShape(viewObjectID,
                                                             jli.CollisionShapeType_Cube)
     
     cubeEntity = jli.BaseEntity.create(jli.EntityTypes_SteeringEntity)
     cubeEntity:setup(shapeID, 1.0)
+    
     cubeEntity:setOrigin(origin)
     
-    cubeEntity:setVBOID(viewObjectID)
+    cubeEntity:setVertexBufferObject(viewObjectID)
     cubeEntity:getRigidBody():setFriction(1.0)
     cubeEntity:getRigidBody():setRestitution(0.0)
     cubeEntity:setCollisionResponseBehavior(collisionResponseBehavior:getID())
@@ -235,7 +233,7 @@ function createRandomObject()
     local aabMinPlane = jli.btVector3(0,0,0);
     local aabMaxPlane = jli.btVector3(0,0,0);
     
-    planeEntity:getRigidBody():getAabb(aabMinPlane, aabMaxPlane)
+--    planeEntity:getRigidBody():getAabb(aabMinPlane, aabMaxPlane)
     
     local buffer = 20.0
     local x = 0
@@ -259,7 +257,7 @@ function createRandomObject()
     x = aabMinPlane:x() + buffer
     z = aabMinPlane:z() + buffer
     
-    entity = createCube(jli.btVector3(x, 10.0, z))
+    entity = createCube(jli.btVector3(0, 10.0, 0))
     
     entity:pursue(camera:getID())
     
@@ -402,8 +400,8 @@ function Enter()
 --    entityState = jli.BaseEntityState.create(jli.EntityStateType_Lua)
 --    print("entity state ID # " .. entityState:getID())
     
---    createCollisionResponse()
---    createSteeringBehavior()
+    createCollisionResponse()
+    createSteeringBehavior()
     
 --    cubeTextureID = ggj:getTextureID("cubetexture1")
 --    cubeViewObjectID = ggj:getMeshID("cube")
@@ -422,7 +420,10 @@ function Enter()
     local key = jli.ShaderFactoryKey("PixelLighting.vsh", "PixelLighting.fsh")
     shaderID = jli.TheShaderFactory.getInstance():create(key)
     
-    ggj:createViewObject("planeobject", ggj:getTextureID("floor"), shaderID)
+    
+    ggj:createViewObject(10, "cube", ggj:getTextureID("cubetexture1"), shaderID)
+    ggj:createViewObject(1, "planeobject", ggj:getTextureID("floor"), shaderID)
+--    ggj:createViewObject(100, "sphere", ggj:getTextureID("spheretexture"), shaderID)
     
     print(materialFactory)
     local materialInfo = jli.VBOMaterialInfo()
@@ -464,7 +465,7 @@ end
 
 function TouchRespond(input)
     if(input:getTouchPhase() == jli.DeviceTouchPhaseEnded) then
---        createRandomObject()
+        createRandomObject()
 
 --        if(input:getTapCount() >= 2)then
 --            cameraFactory:setCurrentCamera(debugCamera)
