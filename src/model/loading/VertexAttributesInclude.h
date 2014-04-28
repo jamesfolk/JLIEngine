@@ -18,6 +18,8 @@
 #include "btVector2.h"
 //#include "jliTransform.h"
 
+#include <string>
+
 struct VertexAttributes_Vertex;
 struct VertexAttributes_Vertex_UVLayer1;
 struct VertexAttributes_Vertex_Normal_UVLayer1;
@@ -30,6 +32,17 @@ ATTRIBUTE_ALIGNED16(struct) VertexAttributes_Vertex
 //    jliTransform worldTransform;
 
 public:
+    operator std::string()
+    {
+        char buffer[1024];
+        float x = vertex.x();
+        float y = vertex.y();
+        float z = vertex.z();
+        float w = vertex.w();
+        sprintf(buffer,"{ %+.1f, %+.1f, %+.1f, %+.1f }", x, y, z, w);
+        return std::string(buffer);
+    }
+
     virtual void setVertex(const btVector3 &v){vertex = v;}
     virtual void setNormal(const btVector3 &v){}
     virtual void setColor(const btVector4 &v){}
@@ -88,6 +101,7 @@ public:
     }
 
 
+
 };
 
 
@@ -107,6 +121,19 @@ ATTRIBUTE_ALIGNED16(struct) VertexAttributes_Vertex_UVLayer1 : public VertexAttr
 {
     btVector2 texture0;
 public:
+    operator std::string()
+    {
+        std::string s(this->VertexAttributes_Vertex::operator std::string());
+        
+        return s;
+//        char buffer[1024];
+//        float x = vertex.x();
+//        float y = vertex.y();
+//        float z = vertex.z();
+//        float w = vertex.w();
+//        sprintf(buffer,"{ $f, %f, %f, %f }", x, y, z, w);
+//        return std::string(buffer);
+    }
     
     //virtual void setUV0(const btVector2 &v){texture0 = v;}
     virtual void setUV(const unsigned int index, const btVector2 &v)
@@ -301,6 +328,46 @@ public:
             btVector4 color;
             btVector2 texture0;
         public:
+            operator std::string()
+            {
+                std::string s(this->VertexAttributes_Vertex::operator std::string());
+                
+                char buffer[1024];
+                float x, y, z, w;
+                
+                std::string snormal, scolor, stexture0;
+                
+                x = normal.x();
+                y = normal.y();
+                z = normal.z();
+                w = normal.w();
+                sprintf(buffer,"{ %+.1f, %+.1f, %+.1f, %+.1f }", x, y, z, w);
+                snormal = buffer;
+                
+                x = color.x();
+                y = color.y();
+                z = color.z();
+                w = color.w();
+                sprintf(buffer,"{ %+.1f, %+.1f, %+.1f, %+.1f }", x, y, z, w);
+                scolor = buffer;
+                
+                x = texture0.x();
+                y = texture0.y();
+                sprintf(buffer,"{ %+.1f, %+.1f }", x, y);
+                stexture0 = buffer;
+                
+                
+                return "{ " + s + ", " + snormal + ", " + scolor + ", " + stexture0 + " }";
+                
+                //        char buffer[1024];
+                //        float x = vertex.x();
+                //        float y = vertex.y();
+                //        float z = vertex.z();
+                //        float w = vertex.w();
+                //        sprintf(buffer,"{ $f, %f, %f, %f }", x, y, z, w);
+                //        return std::string(buffer);
+            }
+            
             virtual void setNormal(const btVector3 &v){normal = v;}
             virtual void setColor(const btVector4 &v){color = v;}
             //virtual void setUV0(const btVector2 &v){texture0 = v;}

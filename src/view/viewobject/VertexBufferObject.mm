@@ -16,7 +16,6 @@
 #include "EntityFactory.h"
 
 const unsigned int TEXTURE_MAX = 8;
-//const unsigned int MAX_INSTANCES = 1000;
 
 #if defined(DEBUG) || defined (_DEBUG)
 void _check_gl_error(const char *file, int line, const char *function)
@@ -44,9 +43,9 @@ void _check_gl_error(const char *file, int line, const char *function)
 
 void VertexBufferObject::updateGLBuffer()
 {
-    const GLuint STRIDE = 64;
+    static const GLuint STRIDE = 64;
     
-    btScalar identityTransform[] =
+    static GLfloat identityTransform[] =
     {
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -62,7 +61,7 @@ void VertexBufferObject::updateGLBuffer()
     {
         if(current_index < m_BaseObjects.size())
         {
-            btScalar *transform = new GLfloat[16];
+            static GLfloat transform[16];
             
             BaseEntity *pEntity = EntityFactory::getInstance()->get(m_BaseObjects[current_index]);
             pEntity->getWorldTransform().getOpenGLMatrix(transform);
@@ -71,9 +70,6 @@ void VertexBufferObject::updateGLBuffer()
             {
                 memcpy(modelview + (offset + (16 * j)), transform, sizeof(GLfloat) * 16);
             }
-            
-            delete [] transform;
-            transform = NULL;
         }
         else
         {
@@ -86,16 +82,14 @@ void VertexBufferObject::updateGLBuffer()
     
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_NumInstances * m_NumVertices * 16 * sizeof(GLfloat), modelview);check_gl_error()
 	
-	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 0);check_gl_error()
-	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 1);check_gl_error()
-	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 2);check_gl_error()
-	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 3);check_gl_error()
-	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 0, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)0);check_gl_error()
-	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 1, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)16);check_gl_error()
-	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 2, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)32);check_gl_error()
-	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 3, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)48);check_gl_error()
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 0);check_gl_error()
+//	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 1);check_gl_error()
+//	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 2);check_gl_error()
+//	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 3);check_gl_error()
+//	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 0, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)0);check_gl_error()
+//	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 1, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)16);check_gl_error()
+//	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 2, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)32);check_gl_error()
+//	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 3, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)48);check_gl_error()
 }
 
 void VertexBufferObject::updateGLBufferPosition(int i, btVector3 &to, const btVector3 &from)
@@ -107,6 +101,7 @@ VertexBufferObject::VertexBufferObject():
 m_NumTextures(0),
 m_NumVertices(0),
 m_NumIndices(0),
+m_vertexArrayBuffer(0),
 m_modelviewBuffer(0),
 m_vertexBuffer(0),
 m_indexBuffer(0),
@@ -119,8 +114,7 @@ m_Stride(0),
 m_PositionOffset(0),
 m_NormalOffset(0),
 m_ColorOffset(0),
-m_TextureOffset(new size_t[TEXTURE_MAX]),
-m_MatrixBuffer(new GLfloat[16])
+m_TextureOffset(new size_t[TEXTURE_MAX])
 {
     memset(m_MaterialFactoryIDs, 0, sizeof(IDType) * TEXTURE_MAX);
     memset(m_TextureOffset, 0, sizeof(GLsizei) * TEXTURE_MAX);
@@ -134,6 +128,7 @@ VertexBufferObject::VertexBufferObject(const VertexBufferObject &rhs):
 m_NumTextures(rhs.m_NumTextures),
 m_NumVertices(rhs.m_NumVertices),
 m_NumIndices(rhs.m_NumIndices),
+m_vertexArrayBuffer(0),
 m_modelviewBuffer(rhs.m_modelviewBuffer),
 m_vertexBuffer(rhs.m_vertexBuffer),
 m_indexBuffer(rhs.m_indexBuffer),
@@ -146,8 +141,7 @@ m_Stride(rhs.m_Stride),
 m_PositionOffset(rhs.m_PositionOffset),
 m_NormalOffset(rhs.m_NormalOffset),
 m_ColorOffset(rhs.m_ColorOffset),
-m_TextureOffset(new size_t[TEXTURE_MAX]),
-m_MatrixBuffer(new GLfloat[16])
+m_TextureOffset(new size_t[TEXTURE_MAX])
 {
     memcpy(m_MaterialFactoryIDs, rhs.m_MaterialFactoryIDs, sizeof(IDType) * TEXTURE_MAX);
     memcpy(m_TextureOffset, rhs.m_TextureOffset, sizeof(size_t) * TEXTURE_MAX);
@@ -161,6 +155,7 @@ VertexBufferObject::VertexBufferObject(const VertexBufferObjectInfo &info):
 m_NumTextures(0),
 m_NumVertices(0),
 m_NumIndices(0),
+m_vertexArrayBuffer(0),
 m_modelviewBuffer(0),
 m_vertexBuffer(0),
 m_indexBuffer(0),
@@ -173,8 +168,7 @@ m_Stride(0),
 m_PositionOffset(0),
 m_NormalOffset(0),
 m_ColorOffset(0),
-m_TextureOffset(new size_t[TEXTURE_MAX]),
-m_MatrixBuffer(new GLfloat[16])
+m_TextureOffset(new size_t[TEXTURE_MAX])
 {
     memset(m_MaterialFactoryIDs, 0, sizeof(IDType) * TEXTURE_MAX);
     memset(m_TextureOffset, 0, sizeof(GLsizei) * TEXTURE_MAX);
@@ -184,9 +178,6 @@ m_MatrixBuffer(new GLfloat[16])
 
 VertexBufferObject::~VertexBufferObject()
 {
-    delete [] m_MatrixBuffer;
-    m_MatrixBuffer = NULL;
-    
     unLoadGLBuffer();
     
     delete [] m_TextureOffset;
@@ -203,6 +194,7 @@ VertexBufferObject &VertexBufferObject::operator=(const VertexBufferObject &rhs)
         m_NumTextures = rhs.m_NumTextures;
         m_NumVertices = rhs.m_NumVertices;
         m_NumIndices = rhs.m_NumIndices;
+        m_vertexArrayBuffer = 0;
         m_modelviewBuffer = rhs.m_modelviewBuffer;
         m_vertexBuffer = rhs.m_vertexBuffer;
         m_indexBuffer = rhs.m_indexBuffer;
@@ -225,62 +217,16 @@ VertexBufferObject &VertexBufferObject::operator=(const VertexBufferObject &rhs)
     return *this;
 }
 
-//void VertexBufferObject::loadGLSL(const IDType shaderFactoryID, const IDType materialFactoryID[TEXTURE_MAX])
-//{
-//    loadGLSL(shaderFactoryID,
-//             materialFactoryID[0],
-//             materialFactoryID[1],
-//             materialFactoryID[2],
-//             materialFactoryID[3],
-//             materialFactoryID[4],
-//             materialFactoryID[5],
-//             materialFactoryID[6],
-//             materialFactoryID[7]);
-//}
-//
-//
-//void VertexBufferObject::loadGLSL(const IDType shaderFactoryID,
-//                                  const IDType materialFactoryID0,
-//                                  const IDType materialFactoryID1,
-//                                  const IDType materialFactoryID2,
-//                                  const IDType materialFactoryID3,
-//                                  const IDType materialFactoryID4,
-//                                  const IDType materialFactoryID5,
-//                                  const IDType materialFactoryID6,
-//                                  const IDType materialFactoryID7)
-//{
-//    
-//    
-//    m_MaterialFactoryIDs[0] = materialFactoryID0;
-//    m_MaterialFactoryIDs[1] = materialFactoryID1;
-//    m_MaterialFactoryIDs[2] = materialFactoryID2;
-//    m_MaterialFactoryIDs[3] = materialFactoryID3;
-//    m_MaterialFactoryIDs[4] = materialFactoryID4;
-//    m_MaterialFactoryIDs[5] = materialFactoryID5;
-//    m_MaterialFactoryIDs[6] = materialFactoryID6;
-//    m_MaterialFactoryIDs[7] = materialFactoryID7;
-//    
-//    
-//    
-//    GLuint program = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
-//    
-//    glUseProgram(program);
-//    
-//    
-//    
-//    
-//    
-//    for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-//        getMaterial(textureIndex)->loadGLSL(this, textureIndex);
-//    
-//    glUseProgram(0);
-//}
-
-
 GLboolean VertexBufferObject::unLoadGLBuffer()
 {   
     delete [] modelview;
     modelview = NULL;
+    
+    if (0 != m_vertexArrayBuffer)
+    {
+        glDeleteVertexArraysOES(1, &m_vertexArrayBuffer);
+        m_vertexArrayBuffer = 0;
+    }
     
     if(0 != m_indexBuffer)
     {
@@ -296,16 +242,16 @@ GLboolean VertexBufferObject::unLoadGLBuffer()
     
     if(0 != m_vertexBuffer)
     {
-        glDeleteVertexArraysOES(1, &m_vertexBuffer);check_gl_error()
+        glDeleteBuffers(1, &m_vertexBuffer);check_gl_error()
         m_vertexBuffer = 0;
     }
     
-    return ((m_vertexBuffer == 0) && (m_modelviewBuffer == 0) && (m_indexBuffer == 0));
+    return ((m_vertexArrayBuffer == 0) && (m_vertexBuffer == 0) && (m_modelviewBuffer == 0) && (m_indexBuffer == 0));
 }
 
 GLboolean VertexBufferObject::isGLBufferLoaded()const
 {
-    return !((m_vertexBuffer == 0) && (m_modelviewBuffer == 0) && (m_indexBuffer == 0));
+    return !((m_vertexArrayBuffer == 0) && (m_vertexBuffer == 0) && (m_modelviewBuffer == 0) && (m_indexBuffer == 0));
 }
 
 void VertexBufferObject::updateGLBuffer(bool position,
@@ -410,23 +356,26 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
     
     BaseCamera *pCamera = CameraFactory::getInstance()->getCurrentCamera();
     
-    GLfloat *m_MatrixBuffer = new GLfloat[16];
-    pCamera->getProjection2().getOpenGLMatrix(m_MatrixBuffer);
-    glUniformMatrix4fv(m_GLSLUniforms.projectionMatrix, 1, 0, m_MatrixBuffer);check_gl_error()
+    static GLfloat m[16];
     
-    pCamera->getWorldTransform().inverse().getOpenGLMatrix(m_MatrixBuffer);
-    glUniformMatrix4fv(m_GLSLUniforms.modelViewMatrix, 1, 0, m_MatrixBuffer);check_gl_error()
+    pCamera->getProjection2().getOpenGLMatrix(m);
+    glUniformMatrix4fv(m_GLSLUniforms.projectionMatrix, 1, 0, m);check_gl_error()
+    
+    pCamera->getWorldTransform().inverse().getOpenGLMatrix(m);
+    glUniformMatrix4fv(m_GLSLUniforms.modelViewMatrix, 1, 0, m);check_gl_error()
     
     for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
         if(getMaterial(textureIndex))
             getMaterial(textureIndex)->render(this, textureIndex);
 
     updateGLBuffer();
+    
+    glBindVertexArrayOES(m_vertexArrayBuffer);check_gl_error()
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);check_gl_error()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);check_gl_error()
     
-	glDrawElements(drawmode, m_NumInstances * m_NumVertices, GL_UNSIGNED_SHORT, 0);check_gl_error();
+	glDrawElements(drawmode, m_NumInstances * m_NumIndices, GL_UNSIGNED_SHORT, 0);check_gl_error();
 	
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);check_gl_error()
     glBindBuffer(GL_ARRAY_BUFFER, 0);check_gl_error()

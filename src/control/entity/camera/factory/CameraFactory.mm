@@ -445,8 +445,8 @@ void CameraFactory::render(const btDbvtNode* root1,
     }
     s_SceneRenderer->render();
     
-    int visiblecount=s_SceneRenderer->getNumObjectsDrawn();
-    NSLog(@"%d visible\n", visiblecount);
+//    int visiblecount=s_SceneRenderer->getNumObjectsDrawn();
+//    NSLog(@"%d visible\n", visiblecount);
 }
 
  void CameraFactory::updateScreenDimensions(btScalar screen_width, btScalar screen_height)

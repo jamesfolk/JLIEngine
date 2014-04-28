@@ -205,8 +205,8 @@ function createCube(origin)
     --self.meshIDs["cube"] = jli.ViewObjectFactory_createViewObject("cube", self.textureIDs["cubetexture1"]);
     
     local entityStateMachine = jli.EntityStateMachine.create()
-    local textureID = ggj:getTextureID("cubetexture1")
-    local viewObjectID = ggj:getMeshID("cube")
+--    local textureID = ggj:getTextureID("cubetexture1")
+    local viewObjectID = ggj:getMeshID("sphere")--"cube")
 
     --load the vertexBufferObject
     local shapeID = jli.CollisionShapeFactory_createShape(viewObjectID,
@@ -218,12 +218,12 @@ function createCube(origin)
     cubeEntity:setOrigin(origin)
     
     cubeEntity:setVertexBufferObject(viewObjectID)
-    cubeEntity:getRigidBody():setFriction(1.0)
-    cubeEntity:getRigidBody():setRestitution(0.0)
-    cubeEntity:setCollisionResponseBehavior(collisionResponseBehavior:getID())
-    cubeEntity:setStateMachineID(entityStateMachine:getID())
-    cubeEntity:setSteeringBehavior(steeringBehavior:getID())
-    cubeEntity:getStateMachine():pushCurrentState(entityState)
+--    cubeEntity:getRigidBody():setFriction(1.0)
+--    cubeEntity:getRigidBody():setRestitution(0.0)
+--    cubeEntity:setCollisionResponseBehavior(collisionResponseBehavior:getID())
+--    cubeEntity:setStateMachineID(entityStateMachine:getID())
+--    cubeEntity:setSteeringBehavior(steeringBehavior:getID())
+--    cubeEntity:getStateMachine():pushCurrentState(entityState)
     
     return cubeEntity
     
@@ -233,7 +233,7 @@ function createRandomObject()
     local aabMinPlane = jli.btVector3(0,0,0);
     local aabMaxPlane = jli.btVector3(0,0,0);
     
---    planeEntity:getRigidBody():getAabb(aabMinPlane, aabMaxPlane)
+    planeEntity:getRigidBody():getAabb(aabMinPlane, aabMaxPlane)
     
     local buffer = 20.0
     local x = 0
@@ -254,10 +254,10 @@ function createRandomObject()
         z = aabMinPlane:z() + buffer
     end
     
-    x = aabMinPlane:x() + buffer
-    z = aabMinPlane:z() + buffer
+    x = -40--aabMinPlane:x() + buffer
+    z = -40--aabMinPlane:z() + buffer
     
-    entity = createCube(jli.btVector3(0, 10.0, 0))
+    entity = createCube(jli.btVector3(x, 10.0, z))
     
     entity:pursue(camera:getID())
     
@@ -420,7 +420,7 @@ function Enter()
     local key = jli.ShaderFactoryKey("PixelLighting.vsh", "PixelLighting.fsh")
     shaderID = jli.TheShaderFactory.getInstance():create(key)
     
-    
+    ggj:createViewObject(1, "sphere", ggj:getTextureID("spheretexture"), shaderID);
     ggj:createViewObject(10, "cube", ggj:getTextureID("cubetexture1"), shaderID)
     ggj:createViewObject(1, "planeobject", ggj:getTextureID("floor"), shaderID)
 --    ggj:createViewObject(100, "sphere", ggj:getTextureID("spheretexture"), shaderID)
@@ -430,6 +430,7 @@ function Enter()
     materialID = materialFactory:create(materialInfo)
     
     createCamera()
+--    theCube = createCube(jli.btVector3(0, 0.0, 0));
 --    
     createPlane()
 --    createSkybox()
@@ -443,11 +444,13 @@ end
 
 function Update(deltaTime)
 
---    print(deltaTime)
+    
     
     if camera then
 --        coneEntity:setOrigin(camera:getOrigin())
---        camera:lookAt(planeEntity:getOrigin())
+--        camera:lookAt(jli.btVector3(0,0,0))
+--        camera:lookAt(theCube:getOrigin())
+--        print("look at")
     end
             
 --    debugCamera:lookAt(camera:getOrigin())
