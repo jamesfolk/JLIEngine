@@ -45,10 +45,10 @@ private:
     std::string m_Percentage;
     std::string m_File;
     
-    btAlignedObjectArray<IDType> m_ObjectDrawingText;
-    btAlignedObjectArray<IDType> m_PercentageDrawingText;
-    
-    CameraEntity *m_pOrthoCamera;
+//    btAlignedObjectArray<IDType> m_ObjectDrawingText;
+//    btAlignedObjectArray<IDType> m_PercentageDrawingText;
+//    
+//    CameraEntity *m_pOrthoCamera;
 };
 
 #endif /* defined(__BaseProject__LoadGameState__) */
