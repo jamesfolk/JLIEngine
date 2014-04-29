@@ -218,12 +218,12 @@ function createCube(origin)
     cubeEntity:setOrigin(origin)
     
     cubeEntity:setVertexBufferObject(viewObjectID)
---    cubeEntity:getRigidBody():setFriction(1.0)
---    cubeEntity:getRigidBody():setRestitution(0.0)
---    cubeEntity:setCollisionResponseBehavior(collisionResponseBehavior:getID())
---    cubeEntity:setStateMachineID(entityStateMachine:getID())
---    cubeEntity:setSteeringBehavior(steeringBehavior:getID())
---    cubeEntity:getStateMachine():pushCurrentState(entityState)
+    cubeEntity:getRigidBody():setFriction(1.0)
+    cubeEntity:getRigidBody():setRestitution(0.0)
+    cubeEntity:setCollisionResponseBehavior(collisionResponseBehavior:getID())
+    cubeEntity:setStateMachineID(entityStateMachine:getID())
+    cubeEntity:setSteeringBehavior(steeringBehavior:getID())
+    cubeEntity:getStateMachine():pushCurrentState(entityState)
     
     return cubeEntity
     
@@ -233,7 +233,7 @@ function createRandomObject()
     local aabMinPlane = jli.btVector3(0,0,0);
     local aabMaxPlane = jli.btVector3(0,0,0);
     
-    planeEntity:getRigidBody():getAabb(aabMinPlane, aabMaxPlane)
+--    planeEntity:getRigidBody():getAabb(aabMinPlane, aabMaxPlane)
     
     local buffer = 20.0
     local x = 0
@@ -421,8 +421,8 @@ function Enter()
     shaderID = jli.TheShaderFactory.getInstance():create(key)
     
 --    ggj:createViewObject(5, "sphere", ggj:getTextureID("spheretexture"), shaderID);
-    ggj:createViewObject(10, "cube", ggj:getTextureID("cubetexture1"), shaderID)
-    ggj:createViewObject(1, "planeobject", ggj:getTextureID("floor"), shaderID)
+    ggj:createViewObject(10000, "cube", ggj:getTextureID("cubetexture1"), shaderID)
+--    ggj:createViewObject(1, "planeobject", ggj:getTextureID("floor"), shaderID)
 --    ggj:createViewObject(100, "sphere", ggj:getTextureID("spheretexture"), shaderID)
     
     print(materialFactory)
@@ -432,7 +432,7 @@ function Enter()
     createCamera()
 --    theCube = createCube(jli.btVector3(0, 0.0, 0));
 --    
-    createPlane()
+--    createPlane()
 --    createSkybox()
 --    createConeEntity()
 

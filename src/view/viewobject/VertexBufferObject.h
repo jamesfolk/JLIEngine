@@ -94,6 +94,8 @@ public AbstractFactoryObject
     size_t m_NormalOffset;
     size_t m_ColorOffset;
     size_t *m_TextureOffset;
+    
+    void createModelViewBuffer();
 private:
     typedef void (*vector2Func)(int i, btVector2 &to, const btVector2 &from);
     typedef void (*vector3Func)(int i, btVector3 &to, const btVector3 &from);
@@ -253,6 +255,7 @@ public:
     template<class Function>
     void get_each_triangle(Function fn)const
     {
+        return;
         unsigned char *ptr = NULL;
         void *p;
         btVector3 vertice[3];
@@ -361,28 +364,28 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
 //        svertices += " }";
 //        printf("%s", svertices.c_str());
         
-        btAlignedObjectArray<VERTEX_ATTRIBUTE> vertices_of_instances;
-        btAlignedObjectArray<GLushort> indices_of_instances;
+//        btAlignedObjectArray<VERTEX_ATTRIBUTE> vertices_of_instances;
+//        btAlignedObjectArray<GLushort> indices_of_instances;
         
         m_NumInstances = num_instances;
         m_NumVertices = vertices.size();
         m_NumIndices = indices.size();
         
-        indices_of_instances.resize(m_NumInstances * m_NumIndices);
-        GLuint indexDelta = 0;
-        for (int i = 0; i < m_NumInstances * m_NumIndices; i += m_NumIndices)
-        {
-            for(int j = 0; j < m_NumIndices; ++j)
-            {
-                indices_of_instances[i + j] = indices[j] + indexDelta;
-            }
-            indexDelta += m_NumVertices;
-        }
+//        indices_of_instances.resize(m_NumInstances * m_NumIndices);
+//        GLuint indexDelta = 0;
+//        for (int i = 0; i < m_NumInstances * m_NumIndices; i += m_NumIndices)
+//        {
+//            for(int j = 0; j < m_NumIndices; ++j)
+//            {
+//                indices_of_instances[i + j] = indices[j] + indexDelta;
+//            }
+//            indexDelta += m_NumVertices;
+//        }
         
-        for(int i = 0; i < num_instances; ++i)
-        {
-            vertices_of_instances.concatFromArray(vertices);
-        }
+//        for(int i = 0; i < num_instances; ++i)
+//        {
+//            vertices_of_instances.concatFromArray(vertices);
+//        }
         
         m_Stride = VERTEX_ATTRIBUTE::getStride();
         
@@ -398,14 +401,16 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
                 ++m_NumTextures;
         }
         
+        createModelViewBuffer();
+        
         glGenVertexArraysOES(1, &m_vertexArrayBuffer);check_gl_error()
         glBindVertexArrayOES(m_vertexArrayBuffer);check_gl_error()
         
         glGenBuffers(1, &m_vertexBuffer);check_gl_error()
         glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);check_gl_error()
         glBufferData(GL_ARRAY_BUFFER,
-                     m_NumVertices * sizeof(vertices[0]) * m_NumInstances,
-                     &vertices_of_instances[0],
+                     m_NumVertices * sizeof(vertices[0]),
+                     &vertices[0],
                      GL_STATIC_DRAW);check_gl_error()
         
         m_ShaderFactoryID = shader_factory_id;
@@ -477,53 +482,14 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
             }
         }
         
-        modelview = new GLfloat[m_NumInstances * m_NumVertices * 16];
-        
-        const GLuint STRIDE = 64;
-        
-        btScalar identityTransform[] =
-        {
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1,
-        };
-        for (int i = 0, offset = 0;
-             i < m_NumInstances * m_NumVertices;
-             i += m_NumVertices, offset += STRIDE)
-        {
-            for (int j = 0; j < m_NumVertices; j++)
-            {
-                memcpy(modelview + (offset + (16 * j)), identityTransform, sizeof(GLfloat) * 16);
-            }
-        }
         
         
-        
-        
-        glGenBuffers(1, &m_modelviewBuffer);check_gl_error()
-        glBindBuffer(GL_ARRAY_BUFFER, m_modelviewBuffer);check_gl_error()
-        glBufferData(GL_ARRAY_BUFFER, m_NumInstances * m_NumVertices * 16 * sizeof(GLfloat), modelview, GL_STREAM_DRAW);check_gl_error()
-        
-        glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 0);check_gl_error()
-        glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 1);check_gl_error()
-        glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 2);check_gl_error()
-        glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 3);check_gl_error()
-        glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 0, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)0);check_gl_error()
-        glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 1, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)16);check_gl_error()
-        glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 2, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)32);check_gl_error()
-        glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 3, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)48);check_gl_error()
-        
-        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 0, 1);
-        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 1, 1);
-        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 2, 1);
-        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 3, 1);
         
         glGenBuffers(1, &m_indexBuffer);check_gl_error()
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);check_gl_error()
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     m_NumInstances * m_NumIndices * sizeof(indices[0]),
-                     &indices_of_instances[0],
+                     m_NumIndices * sizeof(indices[0]),
+                     &indices[0],
                      GL_STATIC_DRAW);check_gl_error()
         
         glUseProgram(0);
