@@ -350,16 +350,16 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
     
     if(vertices.size() > 0)
     {
-        std::string svertices("{ ");
-        for(size_t i = 0; i < vertices.size(); ++i)
-        {
-            VERTEX_ATTRIBUTE v = vertices[i];
-            std::string s = (std::string)v;
-            s+=",\n";
-            svertices += s;
-        }
-        svertices += " }";
-        printf("%s", svertices.c_str());
+//        std::string svertices("{ ");
+//        for(size_t i = 0; i < vertices.size(); ++i)
+//        {
+//            VERTEX_ATTRIBUTE v = vertices[i];
+//            std::string s = (std::string)v;
+//            s+=",\n";
+//            svertices += s;
+//        }
+//        svertices += " }";
+//        printf("%s", svertices.c_str());
         
         btAlignedObjectArray<VERTEX_ATTRIBUTE> vertices_of_instances;
         btAlignedObjectArray<GLushort> indices_of_instances;
@@ -513,6 +513,11 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
         glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 1, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)16);check_gl_error()
         glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 2, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)32);check_gl_error()
         glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 3, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)48);check_gl_error()
+        
+        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 0, 1);
+        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 1, 1);
+        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 2, 1);
+        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 3, 1);
         
         glGenBuffers(1, &m_indexBuffer);check_gl_error()
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);check_gl_error()

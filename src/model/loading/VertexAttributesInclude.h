@@ -322,42 +322,53 @@ public:
         };
         
         
-        ATTRIBUTE_ALIGNED16(struct) VertexAttributes_Vertex_Normal_Color_UVLayer1 : public VertexAttributes_Vertex
+        ATTRIBUTE_ALIGNED16(struct) VertexAttributes_Vertex_Normal_Color_UVLayer1// : public VertexAttributes_Vertex
         {
-            btVector3 normal;
-            btVector4 color;
-            btVector2 texture0;
+            union
+            {
+                struct
+                {
+                    btVector3 vertex;
+                    btVector3 normal;
+                    btVector4 color;
+                    btVector2 texture0;
+                };
+                btScalar verts[14];
+            };
         public:
+            SIMD_FORCE_INLINE	operator       btScalar *()       { return &verts[0]; }
+            SIMD_FORCE_INLINE	operator const btScalar *() const { return &verts[0]; }
+
             operator std::string()
             {
-                std::string s(this->VertexAttributes_Vertex::operator std::string());
-                
-                char buffer[1024];
-                float x, y, z, w;
-                
-                std::string snormal, scolor, stexture0;
-                
-                x = normal.x();
-                y = normal.y();
-                z = normal.z();
-                w = normal.w();
-                sprintf(buffer,"{ %+.1f, %+.1f, %+.1f, %+.1f }", x, y, z, w);
-                snormal = buffer;
-                
-                x = color.x();
-                y = color.y();
-                z = color.z();
-                w = color.w();
-                sprintf(buffer,"{ %+.1f, %+.1f, %+.1f, %+.1f }", x, y, z, w);
-                scolor = buffer;
-                
-                x = texture0.x();
-                y = texture0.y();
-                sprintf(buffer,"{ %+.1f, %+.1f }", x, y);
-                stexture0 = buffer;
-                
-                
-                return "{ " + s + ", " + snormal + ", " + scolor + ", " + stexture0 + " }";
+//                std::string s(this->VertexAttributes_Vertex::operator std::string());
+//                
+//                char buffer[1024];
+//                float x, y, z, w;
+//                
+//                std::string snormal, scolor, stexture0;
+//                
+//                x = normal.x();
+//                y = normal.y();
+//                z = normal.z();
+//                w = normal.w();
+//                sprintf(buffer,"{ %+.1f, %+.1f, %+.1f, %+.1f }", x, y, z, w);
+//                snormal = buffer;
+//                
+//                x = color.x();
+//                y = color.y();
+//                z = color.z();
+//                w = color.w();
+//                sprintf(buffer,"{ %+.1f, %+.1f, %+.1f, %+.1f }", x, y, z, w);
+//                scolor = buffer;
+//                
+//                x = texture0.x();
+//                y = texture0.y();
+//                sprintf(buffer,"{ %+.1f, %+.1f }", x, y);
+//                stexture0 = buffer;
+//                
+//                
+//                return "{ " + s + ", " + snormal + ", " + scolor + ", " + stexture0 + " }";
                 
                 //        char buffer[1024];
                 //        float x = vertex.x();
@@ -367,25 +378,30 @@ public:
                 //        sprintf(buffer,"{ $f, %f, %f, %f }", x, y, z, w);
                 //        return std::string(buffer);
             }
-            
-            virtual void setNormal(const btVector3 &v){normal = v;}
-            virtual void setColor(const btVector4 &v){color = v;}
-            //virtual void setUV0(const btVector2 &v){texture0 = v;}
-            virtual void setUV(const unsigned int index, const btVector2 &v)
+
+
+
+
+            void setVertex(const btVector3 &v){vertex = v;}
+            void setNormal(const btVector3 &v){normal = v;}
+            void setColor(const btVector4 &v){color = v;}
+            //void setUV0(const btVector2 &v){texture0 = v;}
+            void setUV(const unsigned int index, const btVector2 &v)
             {
                 if(index == 0)
                     texture0 = v;
             }
-            
-            virtual bool getNormal(btVector3 &v)const{v = normal;return true;}
-            virtual bool getColor(btVector4 &v)const{v  = color;return true;}
-            virtual bool getUV(const unsigned int index, btVector2 &v)const{v = texture0;return true;}
+
+            bool getVertex(btVector3 &v)const{v = vertex;return true;}
+            bool getNormal(btVector3 &v)const{return false;}
+            bool getColor(btVector4 &v)const{return false;}
+            bool getUV(unsigned int index, const btVector2 &v)const{return false;}
             
             VertexAttributes_Vertex_Normal_Color_UVLayer1(const btVector3 &_vertex = btVector3(),
                                                           const btVector3 &_normal = btVector3(),
                                                           const btVector4 &_color = btVector4(),
                                                           const btVector2 &_texture0 = btVector2()):
-            VertexAttributes_Vertex(_vertex),
+            vertex(_vertex),
             normal(_normal),
             color(_color),
             texture0(_texture0)
@@ -394,7 +410,8 @@ public:
             }
             
             VertexAttributes_Vertex_Normal_Color_UVLayer1(const VertexAttributes_Vertex_Normal_Color_UVLayer1 &copy):
-            VertexAttributes_Vertex(copy.vertex),
+//            VertexAttributes_Vertex(copy.vertex),
+            vertex(copy.vertex),
             normal(copy.normal),
             color(copy.color),
             texture0(copy.texture0){}
@@ -403,7 +420,8 @@ public:
             {
                 if(this != &rhs)
                 {
-                    VertexAttributes_Vertex::operator=(rhs);
+//                    VertexAttributes_Vertex::operator=(rhs);
+                    vertex = rhs.vertex;
                     normal = rhs.normal;
                     color = rhs.color;
                     texture0 = rhs.texture0;

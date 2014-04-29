@@ -206,7 +206,7 @@ function createCube(origin)
     
     local entityStateMachine = jli.EntityStateMachine.create()
 --    local textureID = ggj:getTextureID("cubetexture1")
-    local viewObjectID = ggj:getMeshID("sphere")--"cube")
+    local viewObjectID = ggj:getMeshID("cube")
 
     --load the vertexBufferObject
     local shapeID = jli.CollisionShapeFactory_createShape(viewObjectID,
@@ -420,7 +420,7 @@ function Enter()
     local key = jli.ShaderFactoryKey("PixelLighting.vsh", "PixelLighting.fsh")
     shaderID = jli.TheShaderFactory.getInstance():create(key)
     
-    ggj:createViewObject(1, "sphere", ggj:getTextureID("spheretexture"), shaderID);
+--    ggj:createViewObject(5, "sphere", ggj:getTextureID("spheretexture"), shaderID);
     ggj:createViewObject(10, "cube", ggj:getTextureID("cubetexture1"), shaderID)
     ggj:createViewObject(1, "planeobject", ggj:getTextureID("floor"), shaderID)
 --    ggj:createViewObject(100, "sphere", ggj:getTextureID("spheretexture"), shaderID)

@@ -43,8 +43,59 @@ void _check_gl_error(const char *file, int line, const char *function)
 
 void VertexBufferObject::updateGLBuffer()
 {
-    static const GLuint STRIDE = 64;
     
+//    static const GLuint STRIDE = 64;
+//    unsigned char *ptr = NULL;
+    GLfloat * ptr = NULL;
+    void *p = NULL;
+    
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_modelviewBuffer);
+    
+//    glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
+//    glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
+//    
+//    ptr = (GLfloat*)p;
+//    
+//    if(p)
+//    {
+//        static GLfloat identityTransform[] =
+//        {
+//            1, 0, 0, 0,
+//            0, 1, 0, 0,
+//            0, 0, 1, 0,
+//            0, 0, 0, 1,
+//        };
+//        
+//        for(int instance = 0; instance < m_NumInstances; ++instance)
+//        {
+//            static GLfloat transform[16]={};
+//            
+//            if(instance < m_BaseObjects.size())
+//            {
+//                BaseEntity *pEntity = EntityFactory::getInstance()->get(m_BaseObjects[instance]);
+//                pEntity->getWorldTransform().getOpenGLMatrix(transform);
+//            }
+//            else
+//            {
+//                memcpy(transform, identityTransform, sizeof(GLfloat) * 16);
+//            }
+//            
+//            for (int i = 0, offset = 0; i < m_NumVertices; ++i, offset+=64)
+//            {
+//                memcpy(ptr + offset, transform, 64);
+//            }
+//            
+//        }
+//    }
+//    
+//    glUnmapBufferOES( GL_ARRAY_BUFFER );
+    
+    
+    
+    
+    static const GLuint STRIDE = 64;
+
     static GLfloat identityTransform[] =
     {
         1, 0, 0, 0,
@@ -52,44 +103,31 @@ void VertexBufferObject::updateGLBuffer()
         0, 0, 1, 0,
         0, 0, 0, 1,
     };
+    static GLfloat transform[16]={};
     
 	glBindBuffer(GL_ARRAY_BUFFER, m_modelviewBuffer);check_gl_error()
-    
-    for (int i = 0, offset = 0, current_index = 0;
+
+    for (unsigned int i = 0, offset = 0, instance = 0;
          i < m_NumInstances * m_NumVertices;
-         i += m_NumVertices, offset += STRIDE, ++current_index)
-    {
-        if(current_index < m_BaseObjects.size())
+         i += m_NumVertices, offset += STRIDE, ++instance)
+	{
+        if(instance < m_BaseObjects.size())
         {
-            static GLfloat transform[16];
-            
-            BaseEntity *pEntity = EntityFactory::getInstance()->get(m_BaseObjects[current_index]);
+            BaseEntity *pEntity = EntityFactory::getInstance()->get(m_BaseObjects[instance]);
             pEntity->getWorldTransform().getOpenGLMatrix(transform);
-            
-            for (int j = 0; j < m_NumVertices; j++)
-            {
-                memcpy(modelview + (offset + (16 * j)), transform, sizeof(GLfloat) * 16);
-            }
         }
         else
         {
-            for (int j = 0; j < m_NumVertices; j++)
-            {
-                memcpy(modelview + (offset + (16 * j)), identityTransform, sizeof(GLfloat) * 16);
-            }
+            memcpy(transform, identityTransform, STRIDE);
+        }
+        
+        for (unsigned int j = 0; j < m_NumVertices; j++)
+        {
+            memcpy(modelview + (offset + (16 * j)), transform, sizeof(GLfloat) * 16);
         }
 	}
     
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_NumInstances * m_NumVertices * 16 * sizeof(GLfloat), modelview);check_gl_error()
-	
-//	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 0);check_gl_error()
-//	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 1);check_gl_error()
-//	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 2);check_gl_error()
-//	glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 3);check_gl_error()
-//	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 0, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)0);check_gl_error()
-//	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 1, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)16);check_gl_error()
-//	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 2, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)32);check_gl_error()
-//	glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 3, 4, GL_FLOAT, 0, STRIDE, (GLvoid*)48);check_gl_error()
 }
 
 void VertexBufferObject::updateGLBufferPosition(int i, btVector3 &to, const btVector3 &from)
@@ -368,10 +406,12 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
         if(getMaterial(textureIndex))
             getMaterial(textureIndex)->render(this, textureIndex);
 
-    updateGLBuffer();
+    
     
     glBindVertexArrayOES(m_vertexArrayBuffer);check_gl_error()
 	
+    updateGLBuffer();
+    
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);check_gl_error()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);check_gl_error()
     
@@ -379,7 +419,7 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
 	
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);check_gl_error()
     glBindBuffer(GL_ARRAY_BUFFER, 0);check_gl_error()
-    
+    glBindVertexArrayOES(0);
     glUseProgram(0);
     
 #if defined(DEBUG) || defined (_DEBUG)
