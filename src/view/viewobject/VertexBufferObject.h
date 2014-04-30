@@ -201,6 +201,7 @@ public:
     
     void render(BaseEntity *entity);
     
+    void setMaterial(unsigned int index, const IDType ID);
     const VBOMaterial*	getMaterial(unsigned int index) const;
     VBOMaterial*	getMaterial(unsigned int index);
     

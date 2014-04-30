@@ -371,6 +371,14 @@ void VertexBufferObject::render(BaseEntity *entity)
 {
     m_ShouldRender = GL_TRUE;
 }
+
+void VertexBufferObject::setMaterial(unsigned int index, const IDType ID)
+{
+    btAssert(hasTextureAttribute(index));
+    
+    m_MaterialFactoryIDs[index] = ID;
+}
+
 const VBOMaterial*	VertexBufferObject::getMaterial(unsigned int index) const
 {
     btAssert(hasTextureAttribute(index));
