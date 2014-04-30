@@ -44,16 +44,8 @@ void _check_gl_error(const char *file, int line, const char *function)
 void VertexBufferObject::updateGLBuffer()
 {
     static const GLuint STRIDE = 64;
-
-    static GLfloat identityTransform[] =
-    {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1,
-    };
     
-    static GLfloat transform[16]={};
+    static GLfloat transform[16]={0};
     
 	glBindBuffer(GL_ARRAY_BUFFER, m_modelviewBuffer);check_gl_error()
 
@@ -68,27 +60,13 @@ void VertexBufferObject::updateGLBuffer()
         }
         else
         {
-            memcpy(transform, identityTransform, STRIDE);
+            memset(transform, 0, STRIDE);
         }
         
-        memcpy(modelview + offset, transform, sizeof(GLfloat) * 16);
+        memcpy(m_ModelViewArray + offset, transform, sizeof(GLfloat) * 16);
     }
     
-	glBufferSubData(GL_ARRAY_BUFFER, 0, m_NumInstances * 16 * sizeof(GLfloat), modelview);check_gl_error()
-    
-    glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 0);check_gl_error()
-    glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 1);check_gl_error()
-    glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 2);check_gl_error()
-    glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 3);check_gl_error()
-    glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 0, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)0);check_gl_error()
-    glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 1, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)16);check_gl_error()
-    glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 2, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)32);check_gl_error()
-    glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 3, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)48);check_gl_error()
-    
-    glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 0, 1);
-    glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 1, 1);
-    glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 2, 1);
-    glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 3, 1);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_NumInstances * 16 * sizeof(GLfloat), m_ModelViewArray);check_gl_error()
 }
 
 void VertexBufferObject::updateGLBufferPosition(int i, btVector3 &to, const btVector3 &from)
@@ -104,7 +82,7 @@ m_vertexArrayBuffer(0),
 m_modelviewBuffer(0),
 m_vertexBuffer(0),
 m_indexBuffer(0),
-modelview(NULL),
+m_ModelViewArray(NULL),
 m_NumInstances(0),
 m_ShouldRender(GL_FALSE),
 m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
@@ -131,7 +109,7 @@ m_vertexArrayBuffer(0),
 m_modelviewBuffer(rhs.m_modelviewBuffer),
 m_vertexBuffer(rhs.m_vertexBuffer),
 m_indexBuffer(rhs.m_indexBuffer),
-modelview(NULL),
+m_ModelViewArray(NULL),
 m_NumInstances(rhs.m_NumInstances),
 m_ShouldRender(rhs.m_ShouldRender),
 m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
@@ -158,7 +136,7 @@ m_vertexArrayBuffer(0),
 m_modelviewBuffer(0),
 m_vertexBuffer(0),
 m_indexBuffer(0),
-modelview(NULL),
+m_ModelViewArray(NULL),
 m_NumInstances(0),
 m_ShouldRender(GL_FALSE),
 m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
@@ -194,10 +172,10 @@ VertexBufferObject &VertexBufferObject::operator=(const VertexBufferObject &rhs)
         m_NumVertices = rhs.m_NumVertices;
         m_NumIndices = rhs.m_NumIndices;
         m_vertexArrayBuffer = 0;
-        m_modelviewBuffer = rhs.m_modelviewBuffer;
-        m_vertexBuffer = rhs.m_vertexBuffer;
-        m_indexBuffer = rhs.m_indexBuffer;
-        modelview = NULL;
+        m_modelviewBuffer = 0;
+        m_vertexBuffer = 0;
+        m_indexBuffer = 0;
+        m_ModelViewArray = NULL;
         m_NumInstances = rhs.m_NumInstances;
         m_ShouldRender = rhs.m_ShouldRender;
         m_ShaderFactoryID = rhs.m_ShaderFactoryID;
@@ -209,7 +187,8 @@ VertexBufferObject &VertexBufferObject::operator=(const VertexBufferObject &rhs)
         memcpy(m_MaterialFactoryIDs, rhs.m_MaterialFactoryIDs, sizeof(IDType) * TEXTURE_MAX);
         memcpy(m_TextureOffset, rhs.m_TextureOffset, sizeof(size_t) * TEXTURE_MAX);
         
-        delete [] modelview;
+        delete [] m_ModelViewArray;
+        m_ModelViewArray = NULL;
         
         //TODO: load a copy of the buffer.
     }
@@ -218,8 +197,8 @@ VertexBufferObject &VertexBufferObject::operator=(const VertexBufferObject &rhs)
 
 GLboolean VertexBufferObject::unLoadGLBuffer()
 {   
-    delete [] modelview;
-    modelview = NULL;
+    delete [] m_ModelViewArray;
+    m_ModelViewArray = NULL;
     
     if (0 != m_vertexArrayBuffer)
     {
@@ -466,37 +445,4 @@ bool VertexBufferObject::hasAlphaTexture()const
     //    }
     
     return false;
-}
-
-void VertexBufferObject::createModelViewBuffer()
-{
-    modelview = new GLfloat[m_NumInstances * 16];
-    
-    static btScalar identityTransform[] =
-    {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1,
-    };
-    
-    memset(modelview, 0, m_NumInstances * 16 * sizeof(GLfloat));
-    
-    glGenBuffers(1, &m_modelviewBuffer);check_gl_error()
-    glBindBuffer(GL_ARRAY_BUFFER, m_modelviewBuffer);check_gl_error()
-    glBufferData(GL_ARRAY_BUFFER, m_NumInstances * 16 * sizeof(GLfloat), modelview, GL_STREAM_DRAW);check_gl_error()
-    
-    glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 0);check_gl_error()
-    glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 1);check_gl_error()
-    glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 2);check_gl_error()
-    glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 3);check_gl_error()
-    glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 0, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)0);check_gl_error()
-    glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 1, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)16);check_gl_error()
-    glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 2, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)32);check_gl_error()
-    glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 3, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)48);check_gl_error()
-    
-    glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 0, 1);
-    glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 1, 1);
-    glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 2, 1);
-    glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 3, 1);
 }

@@ -80,7 +80,7 @@ public AbstractFactoryObject
     GLuint m_vertexBuffer;
     GLuint m_indexBuffer;
     
-    GLfloat *modelview;
+    GLfloat *m_ModelViewArray;
     btAlignedObjectArray<IDType> m_BaseObjects;
     unsigned int m_NumInstances;
     
@@ -94,8 +94,6 @@ public AbstractFactoryObject
     size_t m_NormalOffset;
     size_t m_ColorOffset;
     size_t *m_TextureOffset;
-    
-    void createModelViewBuffer();
 private:
     typedef void (*vector2Func)(int i, btVector2 &to, const btVector2 &from);
     typedef void (*vector3Func)(int i, btVector3 &to, const btVector3 &from);
@@ -180,18 +178,6 @@ public:
     virtual ~VertexBufferObject();
     
     VertexBufferObject &operator=(const VertexBufferObject &rhs);
-    
-//    void loadGLSL(const IDType shaderFactoryID, const IDType materialFactoryID[TEXTURE_MAX]);
-//    void loadGLSL(const IDType shaderFactoryID,
-//                  const IDType materialFactoryID0,
-//                  const IDType materialFactoryID1 = 0,
-//                  const IDType materialFactoryID2 = 0,
-//                  const IDType materialFactoryID3 = 0,
-//                  const IDType materialFactoryID4 = 0,
-//                  const IDType materialFactoryID5 = 0,
-//                  const IDType materialFactoryID6 = 0,
-//                  const IDType materialFactoryID7 = 0);
-    
     
     template<class VERTEX_ATTRIBUTE>
     GLboolean loadGLBuffer(const unsigned int num_instances,
@@ -353,39 +339,9 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
     
     if(vertices.size() > 0)
     {
-//        std::string svertices("{ ");
-//        for(size_t i = 0; i < vertices.size(); ++i)
-//        {
-//            VERTEX_ATTRIBUTE v = vertices[i];
-//            std::string s = (std::string)v;
-//            s+=",\n";
-//            svertices += s;
-//        }
-//        svertices += " }";
-//        printf("%s", svertices.c_str());
-        
-//        btAlignedObjectArray<VERTEX_ATTRIBUTE> vertices_of_instances;
-//        btAlignedObjectArray<GLushort> indices_of_instances;
-        
         m_NumInstances = num_instances;
         m_NumVertices = vertices.size();
         m_NumIndices = indices.size();
-        
-//        indices_of_instances.resize(m_NumInstances * m_NumIndices);
-//        GLuint indexDelta = 0;
-//        for (int i = 0; i < m_NumInstances * m_NumIndices; i += m_NumIndices)
-//        {
-//            for(int j = 0; j < m_NumIndices; ++j)
-//            {
-//                indices_of_instances[i + j] = indices[j] + indexDelta;
-//            }
-//            indexDelta += m_NumVertices;
-//        }
-        
-//        for(int i = 0; i < num_instances; ++i)
-//        {
-//            vertices_of_instances.concatFromArray(vertices);
-//        }
         
         m_Stride = VERTEX_ATTRIBUTE::getStride();
         
@@ -401,7 +357,7 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
                 ++m_NumTextures;
         }
         
-        createModelViewBuffer();
+        
         
         glGenVertexArraysOES(1, &m_vertexArrayBuffer);check_gl_error()
         glBindVertexArrayOES(m_vertexArrayBuffer);check_gl_error()
@@ -491,6 +447,30 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
                      m_NumIndices * sizeof(indices[0]),
                      &indices[0],
                      GL_STATIC_DRAW);check_gl_error()
+        
+        
+        m_ModelViewArray = new GLfloat[m_NumInstances * 16];
+        
+        memset(m_ModelViewArray, 0, m_NumInstances * 16 * sizeof(GLfloat));
+        
+        glGenBuffers(1, &m_modelviewBuffer);check_gl_error()
+        glBindBuffer(GL_ARRAY_BUFFER, m_modelviewBuffer);check_gl_error()
+        glBufferData(GL_ARRAY_BUFFER, m_NumInstances * 16 * sizeof(GLfloat), m_ModelViewArray, GL_STREAM_DRAW);check_gl_error()
+        
+        glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 0);check_gl_error()
+        glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 1);check_gl_error()
+        glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 2);check_gl_error()
+        glEnableVertexAttribArray(m_GLSLAttributes.transformmatrix + 3);check_gl_error()
+        glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 0, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)0);check_gl_error()
+        glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 1, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)16);check_gl_error()
+        glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 2, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)32);check_gl_error()
+        glVertexAttribPointer(m_GLSLAttributes.transformmatrix + 3, 4, GL_FLOAT, 0, 16 * sizeof(GLfloat), (GLvoid*)48);check_gl_error()
+        
+        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 0, 1);
+        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 1, 1);
+        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 2, 1);
+        glVertexAttribDivisorEXT(m_GLSLAttributes.transformmatrix + 3, 1);
+        
         
         glUseProgram(0);
         
