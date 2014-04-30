@@ -209,122 +209,30 @@ public:
     btScalar getBoundingRadius()const;
     bool hasAlphaTexture()const;
 public:
+    template<class Function>
+    void get_each_indice(Function fn)const;
+    
     template<class Function, class AttributeType>
-    void get_each_attribute(Function &fn, size_t offset)const
-    {
-        unsigned char *ptr = NULL;
-        void *p = NULL;
-        AttributeType attribute;
-        
-        glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-        
-        glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
-        glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
-        
-        ptr = (unsigned char*)p;
-        
-        int idx = 0;
-        for(int i = 0; i < (m_NumVertices * m_Stride); i+=m_Stride)
-        {
-            memcpy(&attribute, ptr + i + offset, sizeof(AttributeType));
-            fn(idx++, attribute);
-        }
-        
-        glBindBuffer( GL_ARRAY_BUFFER, m_vertexBuffer );
-        
-        glUnmapBufferOES( GL_ARRAY_BUFFER );
-        
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-        glBindVertexArrayOES(0);
-    }
+    void get_each_attribute(Function &fn, size_t offset)const;
     
     template<class Function>
-    void get_each_triangle(Function fn)const
-    {
-        return;
-        unsigned char *ptr = NULL;
-        void *p;
-        btVector3 vertice[3];
-        
-        glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-        
-        glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
-        glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
-        
-        ptr = (unsigned char*)p;
-        
-        for(int i = 0; i < (m_NumVertices * m_Stride); i += (m_Stride * 3))
-        {
-            memcpy(&vertice[0], ptr + (i + (0 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
-            memcpy(&vertice[1], ptr + (i + (1 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
-            memcpy(&vertice[2], ptr + (i + (2 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
-            fn(vertice[0], vertice[1], vertice[2]);
-        }
-        
-        glBindBuffer( GL_ARRAY_BUFFER, m_vertexBuffer );
-        
-        glUnmapBufferOES( GL_ARRAY_BUFFER );
-        
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-        glBindVertexArrayOES(0);
-    }
+    void get_each_triangle(Function fn)const;
+    
+    
+    template<class Function, class AttributeType>
+    void set_each_attribute(Function &fn, size_t offset);
     
     template<class Function>
-    void set_each_triangle(Function fn)const
-    {
-        unsigned char *ptr = NULL;
-        void *p;
-        btVector3 vertice[3];
-        btVector3 normal[3];
-        
-        glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-        
-        glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
-        glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
-        
-        ptr = (unsigned char*)p;
-        
-        int idx = 0;
-        for(int i = 0; i < (m_NumVertices * m_Stride); i += (m_Stride * 3))
-        {
-            memcpy(&vertice[0], ptr + (i + (0 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
-            memcpy(&vertice[1], ptr + (i + (1 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
-            memcpy(&vertice[2], ptr + (i + (2 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
-            if(m_NormalOffset != 0)
-            {
-                memcpy(&normal[0], ptr + (i + (0 * (m_Stride))) + m_NormalOffset, sizeof(btVector3));
-                memcpy(&normal[1], ptr + (i + (1 * (m_Stride))) + m_NormalOffset, sizeof(btVector3));
-                memcpy(&normal[2], ptr + (i + (2 * (m_Stride))) + m_NormalOffset, sizeof(btVector3));
-                
-                fn(idx,
-                   &vertice[0], &vertice[1], &vertice[2],
-                   &normal[0], &normal[1], &normal[2]);
-                
-                memcpy(ptr + (i + (0 * (m_Stride))) + m_NormalOffset, &normal[0], sizeof(btVector3));
-                memcpy(ptr + (i + (1 * (m_Stride))) + m_NormalOffset, &normal[1], sizeof(btVector3));
-                memcpy(ptr + (i + (2 * (m_Stride))) + m_NormalOffset, &normal[2], sizeof(btVector3));
-            }
-            else
-            {
-                fn(idx,
-                   &vertice[0], &vertice[1], &vertice[2]);
-            }
-            
-            
-            memcpy(ptr + (i + (0 * (m_Stride))) + m_PositionOffset, &vertice[0], sizeof(btVector3));
-            memcpy(ptr + (i + (1 * (m_Stride))) + m_PositionOffset, &vertice[1], sizeof(btVector3));
-            memcpy(ptr + (i + (2 * (m_Stride))) + m_PositionOffset, &vertice[2], sizeof(btVector3));
-            
-            idx++;
-        }
-        
-        glBindBuffer( GL_ARRAY_BUFFER, m_vertexBuffer );
-        
-        glUnmapBufferOES( GL_ARRAY_BUFFER );
-        
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-        glBindVertexArrayOES(0);
-    }
+    void set_each_triangle(Function fn)const;
+    
+    
+    template<class Function, class AttributeType>
+    void get_attribute(unsigned int attribute_index, Function &fn, size_t offset)const;
+    
+    template<class Function, class AttributeType>
+    void set_attribute(unsigned int attribute_index, Function &fn, size_t offset);
+    
+    
 };
 
 template<class VERTEX_ATTRIBUTE>
@@ -356,8 +264,6 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
             if(hasTextureAttribute(textureIndex))
                 ++m_NumTextures;
         }
-        
-        
         
         glGenVertexArraysOES(1, &m_vertexArrayBuffer);check_gl_error()
         glBindVertexArrayOES(m_vertexArrayBuffer);check_gl_error()
@@ -483,6 +389,232 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
     }
     
     return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+template<class Function>
+void VertexBufferObject::get_each_indice(Function fn)const
+{
+    unsigned char *ptr = NULL;
+    void *p;
+    GLushort indice = 0;
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
+    
+    glMapBufferOES( GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
+    glGetBufferPointervOES( GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
+    
+    ptr = (unsigned char*)p;
+    
+    const size_t stride = sizeof(GLushort);
+    for(int i = 0, idx = 0; i < (m_NumIndices * stride); i += stride, idx++)
+    {
+        memcpy(&indice, ptr + i, stride);
+        fn(idx, indice);
+    }
+
+    glUnmapBufferOES( GL_ELEMENT_ARRAY_BUFFER );
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+}
+
+template<class Function, class AttributeType>
+void VertexBufferObject::get_each_attribute(Function &fn, size_t offset)const
+{
+    unsigned char *ptr = NULL;
+    void *p = NULL;
+    AttributeType attribute;
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    
+    glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
+    glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
+    
+    ptr = (unsigned char*)p;
+    
+    int idx = 0;
+    for(int i = 0; i < (m_NumVertices * m_Stride); i+=m_Stride)
+    {
+        memcpy(&attribute, ptr + i + offset, sizeof(AttributeType));
+        fn(idx++, attribute);
+    }
+    
+    glUnmapBufferOES( GL_ARRAY_BUFFER );
+    
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+template<class Function>
+void VertexBufferObject::get_each_triangle(Function fn)const
+{
+    unsigned char *ptr = NULL;
+    void *p;
+    btVector3 vertice[3];
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    
+    glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
+    glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
+    
+    ptr = (unsigned char*)p;
+    
+    for(int i = 0; i < (m_NumVertices * m_Stride); i += (m_Stride * 3))
+    {
+        memcpy(&vertice[0], ptr + (i + (0 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
+        memcpy(&vertice[1], ptr + (i + (1 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
+        memcpy(&vertice[2], ptr + (i + (2 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
+        fn(vertice[0], vertice[1], vertice[2]);
+    }
+    
+    glUnmapBufferOES( GL_ARRAY_BUFFER );
+    
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+template<class Function, class AttributeType>
+void VertexBufferObject::set_each_attribute(Function &fn, size_t offset)
+{
+    unsigned char *ptr = NULL;
+    void *p = NULL;
+    AttributeType attribute_from;
+    AttributeType attribute_to;
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    
+    glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
+    glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
+    
+    ptr = (unsigned char*)p;
+    
+    if(p)
+    {
+        int idx = 0;
+        for(int i = 0; i < (m_NumVertices * m_Stride); i+=m_Stride)
+        {
+            memcpy(&attribute_from, ptr + i + offset, sizeof(AttributeType));
+            fn(idx++, attribute_to, attribute_from);
+            memcpy(ptr + i + offset, &attribute_to, sizeof(AttributeType));
+        }
+    }
+    
+    glUnmapBufferOES( GL_ARRAY_BUFFER );
+    
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+template<class Function>
+void VertexBufferObject::set_each_triangle(Function fn)const
+{
+    unsigned char *ptr = NULL;
+    void *p;
+    btVector3 vertice[3];
+    btVector3 normal[3];
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    
+    glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
+    glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
+    
+    ptr = (unsigned char*)p;
+    
+    int idx = 0;
+    for(int i = 0; i < (m_NumVertices * m_Stride); i += (m_Stride * 3))
+    {
+        memcpy(&vertice[0], ptr + (i + (0 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
+        memcpy(&vertice[1], ptr + (i + (1 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
+        memcpy(&vertice[2], ptr + (i + (2 * (m_Stride))) + m_PositionOffset, sizeof(btVector3));
+        if(m_NormalOffset != 0)
+        {
+            memcpy(&normal[0], ptr + (i + (0 * (m_Stride))) + m_NormalOffset, sizeof(btVector3));
+            memcpy(&normal[1], ptr + (i + (1 * (m_Stride))) + m_NormalOffset, sizeof(btVector3));
+            memcpy(&normal[2], ptr + (i + (2 * (m_Stride))) + m_NormalOffset, sizeof(btVector3));
+            
+            fn(idx,
+               &vertice[0], &vertice[1], &vertice[2],
+               &normal[0], &normal[1], &normal[2]);
+            
+            memcpy(ptr + (i + (0 * (m_Stride))) + m_NormalOffset, &normal[0], sizeof(btVector3));
+            memcpy(ptr + (i + (1 * (m_Stride))) + m_NormalOffset, &normal[1], sizeof(btVector3));
+            memcpy(ptr + (i + (2 * (m_Stride))) + m_NormalOffset, &normal[2], sizeof(btVector3));
+        }
+        else
+        {
+            fn(idx,
+               &vertice[0], &vertice[1], &vertice[2]);
+        }
+        
+        
+        memcpy(ptr + (i + (0 * (m_Stride))) + m_PositionOffset, &vertice[0], sizeof(btVector3));
+        memcpy(ptr + (i + (1 * (m_Stride))) + m_PositionOffset, &vertice[1], sizeof(btVector3));
+        memcpy(ptr + (i + (2 * (m_Stride))) + m_PositionOffset, &vertice[2], sizeof(btVector3));
+        
+        idx++;
+    }
+    
+    glUnmapBufferOES( GL_ARRAY_BUFFER );
+    
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+
+template<class Function, class AttributeType>
+void VertexBufferObject::get_attribute(unsigned int attribute_index, Function &fn, size_t offset)const
+{
+    unsigned char *ptr = NULL;
+    void *p = NULL;
+    AttributeType attribute;
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    
+    glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
+    glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
+    
+    ptr = (unsigned char*)p;
+    
+    btAssert(attribute_index < (m_NumVertices * m_Stride));
+    
+    memcpy(&attribute, ptr + attribute_index + offset, sizeof(AttributeType));
+    fn(attribute);
+    
+    glUnmapBufferOES( GL_ARRAY_BUFFER );
+    
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+template<class Function, class AttributeType>
+void VertexBufferObject::set_attribute(unsigned int attribute_index, Function &fn, size_t offset)
+{
+    unsigned char *ptr = NULL;
+    void *p = NULL;
+    AttributeType attribute;
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    
+    glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
+    glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
+    
+    ptr = (unsigned char*)p;
+    
+    btAssert(attribute_index < (m_NumVertices * m_Stride));
+    
+    memcpy(&attribute, ptr + attribute_index + offset, sizeof(AttributeType));
+    fn(attribute, attribute);
+    memcpy(ptr + attribute_index + offset, &attribute, sizeof(AttributeType));
+    
+    glUnmapBufferOES( GL_ARRAY_BUFFER );
+    
+    glBindVertexArrayOES(0);
 }
 
 #endif /* defined(__MazeADay__VertexBufferObject__) */

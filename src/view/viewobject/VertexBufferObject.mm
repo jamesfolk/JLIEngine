@@ -237,88 +237,70 @@ void VertexBufferObject::updateGLBuffer(bool position,
                                         bool color,
                                         bool texture[TEXTURE_MAX])
 {
-//    btAssert(isGLBufferLoaded());
-//    
-//    unsigned char *ptr = NULL;
-//    void *p = NULL;
-//    
-//    glBindVertexArrayOES(m_VAO);
-//    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-//    
-//    glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
-//    glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
-//    
-//    ptr = (unsigned char*)p;
-//    
-//    if(p)
-//    {
-//        int idx = 0;
-//        for(int i = 0; i < (m_NumVertices * m_Stride); i+=m_Stride)
-//        {
-//            GLsizeiptr offset = getWorldTransformOffset(0);
-//            btTransform attribute_from;
-//            btTransform attribute_to;
-//            memcpy(&attribute_from, ptr + i + offset, sizeof(btTransform));
-//            updateGLBufferWorldTransform(idx, attribute_to, attribute_from);
-//            memcpy(ptr + i + offset, &attribute_to, sizeof(btTransform));
-//            
-//            if(position)
-//            {
-//                GLsizeiptr offset = m_PositionOffset;
-//                btVector3 attribute_from;
-//                btVector3 attribute_to;
-//                memcpy(&attribute_from, ptr + i + offset, sizeof(btVector3));
-//                updateGLBufferPosition(idx, attribute_to, attribute_from);
-//                memcpy(ptr + i + offset, &attribute_to, sizeof(btVector3));
-//            }
-//            
-//            
-//            
-//            if(hasNormalAttribute() && normal)
-//            {
-//                GLsizeiptr offset = m_NormalOffset;
-//                btVector3 attribute_from;
-//                btVector3 attribute_to;
-//                memcpy(&attribute_from, ptr + i + offset, sizeof(btVector3));
-//                updateGLBufferNormal(idx, attribute_to, attribute_from);
-//                memcpy(ptr + i + offset, &attribute_to, sizeof(btVector3));
-//            }
-//            
-//            if(hasColorAttribute() && color)
-//            {
-//                GLsizeiptr offset = m_ColorOffset;
-//                btVector4 attribute_from;
-//                btVector4 attribute_to;
-//                memcpy(&attribute_from, ptr + i + offset, sizeof(btVector4));
-//                updateGLBufferColor(idx, attribute_to, attribute_from);
-//                memcpy(ptr + i + offset, &attribute_to, sizeof(btVector4));
-//            }
-//            
-//            for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-//            {
-//                if(hasTextureAttribute(textureIndex) && texture[textureIndex])
-//                {
-//                    GLsizeiptr offset = m_TextureOffset[textureIndex];
-//                    btVector2 attribute_from;
-//                    btVector2 attribute_to;
-//                    memcpy(&attribute_from, ptr + i + offset, sizeof(btVector2));
-//                    updateGLBufferTexture(idx, textureIndex, attribute_to, attribute_from);
-//                    memcpy(ptr + i + offset, &attribute_to, sizeof(btVector2));
-//                }
-//            }
-//            
-//            
-//            ++idx;
-//        }
-//    }
-//    
-//    glBindVertexArrayOES(m_VAO);
-//    glBindBuffer( GL_ARRAY_BUFFER, m_VBO );
-//    
-//    glUnmapBufferOES( GL_ARRAY_BUFFER );
-//    
-//    glBindBuffer(GL_ARRAY_BUFFER,0);
-//    glBindVertexArrayOES(0);
+    btAssert(isGLBufferLoaded());
+    
+    unsigned char *ptr = NULL;
+    void *p = NULL;
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    
+    glMapBufferOES( GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES );
+    glGetBufferPointervOES( GL_ARRAY_BUFFER, GL_BUFFER_MAP_POINTER_OES, &p );
+    
+    ptr = (unsigned char*)p;
+    
+    if(p)
+    {
+        for(unsigned int i = 0, idx = 0; i < (m_NumVertices * m_Stride); i+=m_Stride, ++idx)
+        {
+            if(position)
+            {
+                GLsizeiptr offset = m_PositionOffset;
+                btVector3 attribute_from;
+                btVector3 attribute_to;
+                memcpy(&attribute_from, ptr + i + offset, sizeof(btVector3));
+                updateGLBufferPosition(idx, attribute_to, attribute_from);
+                memcpy(ptr + i + offset, &attribute_to, sizeof(btVector3));
+            }
+            
+            if(hasNormalAttribute() && normal)
+            {
+                GLsizeiptr offset = m_NormalOffset;
+                btVector3 attribute_from;
+                btVector3 attribute_to;
+                memcpy(&attribute_from, ptr + i + offset, sizeof(btVector3));
+                updateGLBufferNormal(idx, attribute_to, attribute_from);
+                memcpy(ptr + i + offset, &attribute_to, sizeof(btVector3));
+            }
+            
+            if(hasColorAttribute() && color)
+            {
+                GLsizeiptr offset = m_ColorOffset;
+                btVector4 attribute_from;
+                btVector4 attribute_to;
+                memcpy(&attribute_from, ptr + i + offset, sizeof(btVector4));
+                updateGLBufferColor(idx, attribute_to, attribute_from);
+                memcpy(ptr + i + offset, &attribute_to, sizeof(btVector4));
+            }
+            
+            for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
+            {
+                if(hasTextureAttribute(textureIndex) && texture[textureIndex])
+                {
+                    GLsizeiptr offset = m_TextureOffset[textureIndex];
+                    btVector2 attribute_from;
+                    btVector2 attribute_to;
+                    memcpy(&attribute_from, ptr + i + offset, sizeof(btVector2));
+                    updateGLBufferTexture(idx, textureIndex, attribute_to, attribute_from);
+                    memcpy(ptr + i + offset, &attribute_to, sizeof(btVector2));
+                }
+            }
+        }
+    }
+    
+    glUnmapBufferOES( GL_ARRAY_BUFFER );
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void VertexBufferObject::renderGLBuffer(GLenum drawmode)
@@ -355,7 +337,6 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);check_gl_error()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);check_gl_error()
     
-//	glDrawElements(drawmode, m_NumInstances * m_NumIndices, GL_UNSIGNED_SHORT, 0);check_gl_error();
     glDrawElementsInstancedEXT(drawmode, m_NumIndices, GL_UNSIGNED_SHORT, 0, m_NumInstances);check_gl_error();
 	
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);check_gl_error()

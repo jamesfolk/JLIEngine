@@ -422,7 +422,7 @@ function Enter()
     
 --    ggj:createViewObject(5, "sphere", ggj:getTextureID("spheretexture"), shaderID);
     ggj:createViewObject(10000, "cube", ggj:getTextureID("cubetexture1"), shaderID)
---    ggj:createViewObject(1, "planeobject", ggj:getTextureID("floor"), shaderID)
+    ggj:createViewObject(1, "planeobject", ggj:getTextureID("floor"), shaderID)
 --    ggj:createViewObject(100, "sphere", ggj:getTextureID("spheretexture"), shaderID)
     
     print(materialFactory)
@@ -432,7 +432,7 @@ function Enter()
     createCamera()
 --    theCube = createCube(jli.btVector3(0, 0.0, 0));
 --    
---    createPlane()
+    createPlane()
 --    createSkybox()
 --    createConeEntity()
 
