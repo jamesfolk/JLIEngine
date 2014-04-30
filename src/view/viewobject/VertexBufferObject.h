@@ -199,7 +199,7 @@ public:
     bool registerEntity(BaseEntity *entity);
     bool unRegisterEntity(BaseEntity *entity);
     
-    void render(BaseEntity *entity);
+    void markInView(BaseEntity *entity);
     
     void setMaterial(unsigned int index, const IDType ID);
     const VBOMaterial*	getMaterial(unsigned int index) const;

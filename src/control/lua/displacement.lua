@@ -259,7 +259,7 @@ function createRandomObject()
     
     entity = createCube(jli.btVector3(x, 10.0, z))
     
-    entity:pursue(camera:getID())
+--    entity:pursue(camera:getID())
     
     entity:setMaxLinearSpeed(5.0)
     entity:setMaxLinearForce(5.0)
@@ -421,7 +421,7 @@ function Enter()
     shaderID = jli.TheShaderFactory.getInstance():create(key)
     
 --    ggj:createViewObject(5, "sphere", ggj:getTextureID("spheretexture"), shaderID);
-    ggj:createViewObject(10000, "cube", ggj:getTextureID("cubetexture1"), shaderID)
+    ggj:createViewObject(1000, "cube", ggj:getTextureID("cubetexture1"), shaderID)
     ggj:createViewObject(1, "planeobject", ggj:getTextureID("floor"), shaderID)
 --    ggj:createViewObject(100, "sphere", ggj:getTextureID("spheretexture"), shaderID)
     

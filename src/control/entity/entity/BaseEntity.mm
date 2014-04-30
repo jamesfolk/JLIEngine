@@ -54,6 +54,7 @@ m_collisionFilterFactoryID(0),
 m_entityDecoratorFactoryID(0),
 m_hidden(false),
 m_tagged(false),
+m_isOrthographic(constructionInfo.m_IsOrthographicEntity),
 m_drawMode(constructionInfo.m_drawMode),
 m_SecondsShown(0),
 m_ShowTimer(false),
@@ -90,6 +91,7 @@ m_collisionFilterFactoryID(0),
 m_entityDecoratorFactoryID(0),
 m_hidden(false),
 m_tagged(false),
+m_isOrthographic(false),
 m_drawMode(GL_TRIANGLES),
 m_SecondsShown(0),
 m_ShowTimer(false),
@@ -332,7 +334,7 @@ void BaseEntity::render()
     VertexBufferObject *pVBO = getVertexBufferObject();
     if (pVBO)
     {
-        pVBO->render(this);
+        pVBO->markInView(this);
     }
     
     //BaseViewObject *pVBO = NULL;//getVBO();

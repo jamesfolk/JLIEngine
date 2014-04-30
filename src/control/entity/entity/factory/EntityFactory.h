@@ -24,8 +24,8 @@ public AbstractFactory<EntityFactory, BaseEntityInfo, BaseEntity>
     EntityFactory(){}
     virtual ~EntityFactory(){}
     
-    btAlignedObjectArray<BaseEntity*> m_OrthographicEntities;
-    btAlignedObjectArray<BaseEntity*> m_PerspectiveEntities;
+//    btAlignedObjectArray<BaseEntity*> m_OrthographicEntities;
+//    btAlignedObjectArray<BaseEntity*> m_PerspectiveEntities;
     
 protected:
     virtual BaseEntity *ctor(BaseEntityInfo *constructionInfo);
@@ -33,7 +33,7 @@ protected:
     virtual void dtor(BaseEntity *object);
 public:
     
-    void render();
+//    void render();
     
     template <class T, class TInfo>
     static T *createEntity(TInfo *constructionInfo, IDType *ID = NULL)

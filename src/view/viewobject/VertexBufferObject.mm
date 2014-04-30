@@ -14,6 +14,7 @@
 #include "VBOMaterialFactory.h"
 #include "ZipFileResourceLoader.h"
 #include "EntityFactory.h"
+#include "VertexBufferObjectFactory.h"
 
 const unsigned int TEXTURE_MAX = 8;
 
@@ -357,6 +358,8 @@ bool VertexBufferObject::registerEntity(BaseEntity *entity)
     
     m_BaseObjects.push_back(entity->getID());
     
+    VertexBufferObjectFactory::getInstance()->registerViewObject(this, entity->isOrthographic());
+    
     return true;
 }
 bool VertexBufferObject::unRegisterEntity(BaseEntity *entity)
@@ -367,7 +370,7 @@ bool VertexBufferObject::unRegisterEntity(BaseEntity *entity)
     
     return true;
 }
-void VertexBufferObject::render(BaseEntity *entity)
+void VertexBufferObject::markInView(BaseEntity *entity)
 {
     m_ShouldRender = GL_TRUE;
 }

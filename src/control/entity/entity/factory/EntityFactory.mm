@@ -62,10 +62,10 @@ BaseEntity *EntityFactory::createEntity(BaseEntityInfo *constructionInfo)
             break;
     }
     
-    if(constructionInfo->m_IsOrthographicEntity)
-        m_OrthographicEntities.push_back(pBaseEntity);
-    else
-        m_PerspectiveEntities.push_back(pBaseEntity);
+//    if(constructionInfo->m_IsOrthographicEntity)
+//        m_OrthographicEntities.push_back(pBaseEntity);
+//    else
+//        m_PerspectiveEntities.push_back(pBaseEntity);
     
     return pBaseEntity;
 }
@@ -97,29 +97,29 @@ BaseEntity *EntityFactory::ctor(int type)
             break;
     }
     
-    m_PerspectiveEntities.push_back(pEntity);
+//    m_PerspectiveEntities.push_back(pEntity);
     
     return pEntity;
 }
 void EntityFactory::dtor(BaseEntity *object)
 {
-    if(m_OrthographicEntities.size() != m_OrthographicEntities.findLinearSearch(object))
-        m_OrthographicEntities.remove(object);
-    else if(m_PerspectiveEntities.size() != m_PerspectiveEntities.findLinearSearch(object))
-        m_PerspectiveEntities.remove(object);
+//    if(m_OrthographicEntities.size() != m_OrthographicEntities.findLinearSearch(object))
+//        m_OrthographicEntities.remove(object);
+//    else if(m_PerspectiveEntities.size() != m_PerspectiveEntities.findLinearSearch(object))
+//        m_PerspectiveEntities.remove(object);
     
     delete object;
 }
 
 
-void EntityFactory::render()
-{
-    for (int i = 0; i < m_PerspectiveEntities.size(); ++i)
-    {
-        m_PerspectiveEntities[i]->renderInstancing();
-    }
-    for(int i = 0; i < m_OrthographicEntities.size(); ++i)
-    {
-//        m_OrthographicEntities[i]->render(CameraFactory::getInstance()->getOrthoCamera());
-    }
-}
+//void EntityFactory::render()
+//{
+//    for (int i = 0; i < m_PerspectiveEntities.size(); ++i)
+//    {
+//        m_PerspectiveEntities[i]->renderInstancing();
+//    }
+//    for(int i = 0; i < m_OrthographicEntities.size(); ++i)
+//    {
+////        m_OrthographicEntities[i]->render(CameraFactory::getInstance()->getOrthoCamera());
+//    }
+//}

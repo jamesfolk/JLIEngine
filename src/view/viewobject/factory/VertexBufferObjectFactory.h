@@ -24,7 +24,13 @@ public AbstractFactory<VertexBufferObjectFactory, VertexBufferObjectInfo, Vertex
     
     VertexBufferObjectFactory(){}
     virtual ~VertexBufferObjectFactory(){}
+    
+    btAlignedObjectArray<VertexBufferObject*> m_OrthographicEntities;
+    btAlignedObjectArray<VertexBufferObject*> m_PerspectiveEntities;
 public:
+    void registerViewObject(VertexBufferObject *vo, bool orthographic = false);
+    void render();
+    
     static IDType createViewObject(unsigned int num_instances,
                                    const std::string &zipfile_object_name,
                                    IDType texture_factory_id,

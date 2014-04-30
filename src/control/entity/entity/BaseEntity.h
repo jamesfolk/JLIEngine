@@ -177,6 +177,8 @@ public:
     bool isTagged()const;
     void tag(bool tag = true);
     
+    bool isOrthographic()const{return m_isOrthographic;}
+    
     virtual btTransform getTransformOffset()const;
     virtual void setTransformOffset(const btTransform &parentTrans);
     
@@ -278,6 +280,7 @@ private:
     
     bool m_hidden;
     bool m_tagged;
+    bool m_isOrthographic;
     
     GLenum m_drawMode;
     

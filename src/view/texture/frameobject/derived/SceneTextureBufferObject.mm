@@ -17,6 +17,7 @@
 
 //#define check_gl_error() _check_gl_error(__FILE__,__LINE__,__FUNCTION__);
 #include "VertexBufferObject.h"
+#include "VertexBufferObjectFactory.h"
 
 void SceneTextureBufferObject::renderFBO()
 {
@@ -33,7 +34,8 @@ void SceneTextureBufferObject::renderFBO()
     
     WorldPhysics::getInstance()->render();
     
-    EntityFactory::getInstance()->render();
+//    EntityFactory::getInstance()->render();
+    VertexBufferObjectFactory::getInstance()->render();
     
     TextViewObjectFactory::getInstance()->render();
     

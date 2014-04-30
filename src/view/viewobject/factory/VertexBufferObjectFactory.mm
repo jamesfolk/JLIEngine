@@ -9,6 +9,32 @@
 #include "VertexBufferObjectFactory.h"
 #include "ZipFileResourceLoader.h"
 
+void VertexBufferObjectFactory::registerViewObject(VertexBufferObject *vo, bool orthographic)
+{
+    if(orthographic)
+    {
+        m_OrthographicEntities.remove(vo);
+        m_OrthographicEntities.push_back(vo);
+    }
+    else
+    {
+        m_PerspectiveEntities.remove(vo);
+        m_PerspectiveEntities.push_back(vo);
+    }
+}
+
+void VertexBufferObjectFactory::render()
+{
+    for (int i = 0; i < m_PerspectiveEntities.size(); ++i)
+    {
+        m_PerspectiveEntities[i]->renderGLBuffer(GL_TRIANGLES);
+    }
+    for(int i = 0; i < m_OrthographicEntities.size(); ++i)
+    {
+        m_OrthographicEntities[i]->renderGLBuffer(GL_TRIANGLES);
+    }
+}
+
 IDType VertexBufferObjectFactory::createViewObject(unsigned int num_instances,
                                                    const std::string &zipfile_object_name,
                                                    IDType texture_factory_id,

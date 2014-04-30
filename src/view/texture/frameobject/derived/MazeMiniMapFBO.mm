@@ -22,7 +22,7 @@
 
 //#define check_gl_error() _check_gl_error(__FILE__,__LINE__,__FUNCTION__);
 #include "VertexBufferObject.h"
-
+#include "VertexBufferObjectFactory.h"
 
 
 MazeMiniMapFBO::MazeMiniMapFBO(const MazeMiniMapFBOInfo &info):
@@ -260,7 +260,8 @@ void MazeMiniMapFBO::renderFBO()
     m_pMapSprite->show();
     m_pMapBallSprite->show();
     
-    EntityFactory::getInstance()->render();
+//    EntityFactory::getInstance()->render();
+    VertexBufferObjectFactory::getInstance()->render();
     
     m_pMapSprite->hide();
     m_pMapBallSprite->hide();
