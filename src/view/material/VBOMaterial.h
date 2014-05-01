@@ -18,13 +18,15 @@
 
 
 class VertexBufferObject;
+class ImageFileEditor;
 
 class VBOMaterial :
 public AbstractFactoryObject,
 public AbstractBehavior<VertexBufferObject>
 {
     std::string m_TextureFileName;
-    
+    ImageFileEditor *m_ImageFileEditor;
+    GLuint m_TextureUniform;
 public:
     VBOMaterial();
     VBOMaterial(const VBOMaterialInfo &info);

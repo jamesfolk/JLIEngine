@@ -209,6 +209,8 @@ public:
     btTransform getInitialTransform() const;
     btScalar getBoundingRadius()const;
     bool hasAlphaTexture()const;
+    
+    GLuint getProgramUsed()const;
 public:
     template<class Function>
     void get_each_indice(Function fn)const;
@@ -278,7 +280,7 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
         
         m_ShaderFactoryID = shader_factory_id;
         
-        GLuint program = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
+        GLuint program = getProgramUsed();
         
         const char *const textureCoord[]  =
         {

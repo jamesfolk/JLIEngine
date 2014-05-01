@@ -254,8 +254,8 @@ function createRandomObject()
         z = aabMinPlane:z() + buffer
     end
     
-    x = -40--aabMinPlane:x() + buffer
-    z = -40--aabMinPlane:z() + buffer
+    x = -20--aabMinPlane:x() + buffer
+    z = -20--aabMinPlane:z() + buffer
     
     entity = createCube(jli.btVector3(x, 10.0, z))
     
@@ -315,6 +315,8 @@ function createPlane()
     
     
     local vbo = vertexBufferFactory:get(planeViewObjectID)
+    vbo:setMaterial(0, materialID);
+    
 --    vbo:loadGLSL(shaderID, materialID)
     
     

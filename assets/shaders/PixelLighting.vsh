@@ -2,7 +2,7 @@ attribute vec3 position;
 attribute vec4 sourceColor;
 //attribute vec4 normal;
 attribute mat4 transformmatrix;
-//attribute mediump vec2 textureCoord0;
+attribute mediump vec2 textureCoord0;
 //attribute mediump vec2 textureCoord1;
 //attribute mediump vec2 textureCoord2;
 //attribute mediump vec2 textureCoord3;
@@ -15,6 +15,7 @@ uniform mediump mat4 modelViewMatrix;
 uniform mediump mat4 projectionMatrix;
 
 varying vec4 destinationColor;
+varying vec2 texCoordOut0;
 
 void main(void)
 {
@@ -22,8 +23,7 @@ void main(void)
     
     mat4 mvp = projectionMatrix * modelViewMatrix * transformmatrix;
     
-//    mat4 m = mat4(1.0);
-//    mat4 mvp = projectionMatrix * m * transformmatrix;
-    
     gl_Position = mvp * vec4(position, 1.0);
+    
+    texCoordOut0 = textureCoord0;
 }

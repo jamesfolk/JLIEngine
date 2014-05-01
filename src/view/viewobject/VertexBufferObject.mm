@@ -311,7 +311,7 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
     glPushGroupMarkerEXT(0, getName().c_str());
 #endif
     
-    GLuint program = ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
+    GLuint program = getProgramUsed();
     
     glUseProgram(program);check_gl_error()
     
@@ -437,4 +437,9 @@ bool VertexBufferObject::hasAlphaTexture()const
     //    }
     
     return false;
+}
+
+GLuint VertexBufferObject::getProgramUsed()const
+{
+    return ShaderFactory::getInstance()->get(m_ShaderFactoryID)->m_ShaderProgramHandle;
 }
