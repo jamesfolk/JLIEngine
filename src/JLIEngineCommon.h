@@ -60,6 +60,7 @@ typedef unsigned long long u64;
 //#include "model/loading/ZipFileResourceLoader.h"
 #include "control/lua/LuaVM.h"
 #include "view/debug/GLDebugDrawer.h"
+#include "model/loading/FileLoader.h"
 
 //AbstractFactory...
 #include "control/entity/animation/factory/AnimationControllerFactory.h"

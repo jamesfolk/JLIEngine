@@ -119,6 +119,7 @@
 #include "JLIEngineCommon copy.h"
 #include "JLIEngineCommon.h"
 #include "jliTransform.h"
+#include "model/loading/FileLoader.h"
 #include "model/loading/IcoSphereCreator.h"
 #include "model/loading/LocalizedTextLoader.h"
 #include "model/loading/shader/factory/ShaderFactory.h"

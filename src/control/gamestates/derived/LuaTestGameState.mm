@@ -9,7 +9,7 @@
 #include "LuaTestGameState.h"
 #include "LuaVM.h"
 #include "DeviceInput.h"
-
+#include "FileLoader.h"
 
 
 LuaTestGameState::LuaTestGameState()
@@ -32,7 +32,7 @@ void ERRCHECK(FMOD_RESULT result)
 void LuaTestGameState::enter(void*)
 {
     FMOD_RESULT   result        = FMOD_OK;
-    char          buffer[200]   = {0};
+//    char          buffer[200]   = {0};
     unsigned int  version       = 0;
     
     /*
@@ -53,8 +53,8 @@ void LuaTestGameState::enter(void*)
     result = system->init(32, FMOD_INIT_NORMAL | FMOD_INIT_ENABLE_PROFILE, NULL);
     ERRCHECK(result);
     
-    [[NSString stringWithFormat:@"%@/Displacement.mp3", [[NSBundle mainBundle] resourcePath]] getCString:buffer maxLength:200 encoding:NSASCIIStringEncoding];
-    result = system->createStream(buffer, FMOD_SOFTWARE | FMOD_LOOP_NORMAL, NULL, &sound);
+    result = system->createStream(FileLoader::getInstance()->getFilePath("Displacement.mp3").c_str(), FMOD_SOFTWARE | FMOD_LOOP_NORMAL, NULL, &sound);
+    
     ERRCHECK(result);
     
     /*

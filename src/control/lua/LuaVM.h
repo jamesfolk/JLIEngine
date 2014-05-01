@@ -15,7 +15,6 @@
 
 #include "DeviceInput.h"
 
-extern char *BUNDLE_PATH;
 
 extern "C" {
 #include "lua.h"

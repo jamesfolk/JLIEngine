@@ -7,15 +7,7 @@
 //
 
 #include "UserSettingsSingleton.h"
-
-static NSString *getBundledFile(const std::string &file)
-{
-    size_t marker = file.find_last_of(".");
-    NSString *fileName = [NSString stringWithUTF8String:file.substr(0, marker).c_str()];
-    NSString *extension = [NSString stringWithUTF8String:file.substr(marker + 1).c_str()];
-    
-    return [[NSBundle mainBundle] pathForResource:fileName ofType:extension];
-}
+#include "FileLoader.h"
 
 UserSettingsSingleton::UserSettingsSingleton()
 {
@@ -28,9 +20,8 @@ UserSettingsSingleton::~UserSettingsSingleton()
 
 void UserSettingsSingleton::registerDefaults(const std::string &userDefaultsFile)
 {
-    NSString *defaultsPath = getBundledFile(userDefaultsFile);
+    NSString *defaultsPath = [NSString stringWithUTF8String:FileLoader::getInstance()->getFilePath(userDefaultsFile).c_str()];
     
-    //NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"UserDefaults" ofType:@"plist"];
     NSDictionary *appDefaults = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];
     
     NSUserDefaults *standardDefaults = [NSUserDefaults standardUserDefaults];

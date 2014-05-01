@@ -737,18 +737,6 @@ protected:
     void updateProgram(const GLuint vertexBufferArray,
                        const GLuint vertexBuffer);
     
-#if defined(DEBUG) || defined (_DEBUG)
-    void assertFile(const std::string file)
-    {
-        size_t marker = file.find_last_of(".");
-        NSString *fileName = [NSString stringWithUTF8String:file.substr(0, marker).c_str()];
-        NSString *extension = [NSString stringWithUTF8String:file.substr(marker + 1).c_str()];
-        
-        NSString* filePath = [[NSBundle mainBundle] pathForResource:fileName ofType:extension];
-        
-        btAssert(filePath && file.c_str());
-    }
-#endif
     GLSLUniformValues *m_GLSLUniformValues;
     GLSLUniforms m_GLSLUniforms;
     

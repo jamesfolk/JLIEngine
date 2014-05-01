@@ -12,14 +12,13 @@
 #include "fmod.hpp"
 #include "fmod_errors.h"
 
-char *BUNDLE_PATH;
-
 //#include "swigluarun.h"
 //#include "bullet_swig.h"
 //#include "jli_swig.h"
 
 #include "jli_engine_swig.h"
 
+#include "FileLoader.h"
 
 void LuaVM::touchRespond(DeviceTouch *input){}
 void LuaVM::tapGestureRespond(DeviceTapGesture input){}
@@ -88,21 +87,11 @@ static void printWrappedClasses()
 LuaVM::LuaVM() :
 m_lua_State(NULL)
 {
-    std::string bundle([[[NSBundle mainBundle] pathForResource:@"main" ofType:@"lua"] UTF8String]);
-    
-    size_t marker = bundle.find_last_of("/");
-    bundle = bundle.substr(0, marker).c_str();
-    
-    BUNDLE_PATH = new char[bundle.length() + 1];
-    BUNDLE_PATH = strcpy(BUNDLE_PATH, bundle.c_str());
-    
-    printf("%s\n", BUNDLE_PATH);
     init();
 }
 
 LuaVM::~LuaVM()
 {
-    delete [] BUNDLE_PATH;
     unInit();
 }
 
@@ -531,16 +520,7 @@ void LuaVM::reset()
 
 bool LuaVM::loadFile(const std::string &file)
 {
-    size_t marker = file.find_last_of(".");
-    NSString *fileName = [NSString stringWithUTF8String:file.substr(0, marker).c_str()];
-    NSString *extension = [NSString stringWithUTF8String:file.substr(marker + 1).c_str()];
-    
-    NSString *path = [[NSBundle mainBundle] pathForResource:fileName ofType:extension];
-    
-    NSError* error;
-    NSString *shaderString = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-    
-    return loadString(std::string([shaderString UTF8String]));
+    return loadString(FileLoader::getInstance()->getFileContents(file));
 }
 
 bool LuaVM::loadString(const std::string &str)

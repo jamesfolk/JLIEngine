@@ -47,6 +47,7 @@
 //%template(TheZipFileResourceLoaderSingleton) AbstractSingleton<ZipFileResourceLoader>;
 %template(TheLuaVMSingleton) AbstractSingleton< LuaVM >;
 %template(TheGLDebugDrawerSingleton) AbstractSingleton< GLDebugDrawer >;
+%template(TheFileLoader) AbstractSingleton<FileLoader>;
 
 
 
@@ -450,7 +451,6 @@ if (!dcast)
 }
 
 
-extern char *BUNDLE_PATH;
 
 //
 //%module jli

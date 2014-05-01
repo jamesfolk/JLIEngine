@@ -9,17 +9,7 @@
 #include "TextureFactory.h"
 #include "ZipFileResourceLoader.h"
 #include <GLKit/GLKTextureLoader.h>
-
-NSString *getBundledFile(const std::string &file)
-{
-    size_t marker = file.find_last_of(".");
-    NSString *fileName = [NSString stringWithUTF8String:file.substr(0, marker).c_str()];
-    NSString *extension = [NSString stringWithUTF8String:file.substr(marker + 1).c_str()];
-    
-    //btAssert([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithUTF8String:file->c_str()]]);
-    
-    return [[NSBundle mainBundle] pathForResource:fileName ofType:extension];
-}
+#include "FileLoader.h"
 
 TextureFactory::TextureFactory()
 {
@@ -160,7 +150,9 @@ void TextureFactory::buildTextureFromFile(const std::string &file, GLKTextureInf
         {
             NSError *error = nil;
             
-            GLKTextureInfo *info = [GLKTextureLoader textureWithContentsOfFile:getBundledFile(file)
+            NSString *path = [NSString stringWithUTF8String:FileLoader::getInstance()->getFilePath(file).c_str()];
+            
+            GLKTextureInfo *info = [GLKTextureLoader textureWithContentsOfFile:path
                                                                        options:options
                                                                          error:&error];
             

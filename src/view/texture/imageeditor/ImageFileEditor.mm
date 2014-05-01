@@ -12,6 +12,7 @@
 //#include <OpenGLES/ES2/glext.h>
 #include "png.h"
 #include "jpeglib.h"
+#include "FileLoader.h"
 
 static void jliImageSetAlpha( JLIimage *_SIO2image0,
                               JLIimage *_SIO2image1 )
@@ -637,16 +638,9 @@ bool ImageFileEditor::load(const std::string &file)
 {
     JLIstream *pStream = new JLIstream();
     
-    size_t marker = file.find_last_of(".");
-    NSString *fileName = [NSString stringWithUTF8String:file.substr(0, marker).c_str()];
-    NSString *extension = [NSString stringWithUTF8String:file.substr(marker + 1).c_str()];
+    pStream->open(FileLoader::getInstance()->getFilePath(file).c_str());
     
-    NSString* fullPath = [[NSBundle mainBundle] pathForResource:fileName ofType:extension];
-    
-    //pStream->fname = [fullPath UTF8String];
-    pStream->open([fullPath UTF8String]);
-    
-    std::string ext([extension UTF8String]);
+    std::string ext(FileLoader::getInstance()->getFileExtension(file));
     std::transform(ext.begin(), ext.end(),ext.begin(), ::toupper);
     
     if(ext == "TGA")

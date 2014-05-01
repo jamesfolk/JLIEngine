@@ -448,7 +448,7 @@ void BaseEntity::playSoundEffect(const std::string soundKey,
 	const GLfloat v[] = {0.0f, 0.0f, 0.0f};
 	BOOL bLoop = (loop)?YES:NO;
     
-    NSString *key = [NSString stringWithUTF8String:soundKey.c_str()];
+    
 
 //	[sharedSoundManager playSFXWithKey:key
 //									gain:1.0f

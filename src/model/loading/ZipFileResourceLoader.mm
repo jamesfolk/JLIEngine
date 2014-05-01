@@ -8,7 +8,7 @@
 
 #include "ZipFileResourceLoader.h"
 #include "VertexAttributesInclude.h"
-
+#include "FileLoader.h"
 
 
 const char *const JLI_RESOURCE_PATH[JLIResourceTypes_MAX] = 
@@ -37,18 +37,7 @@ bool ZipFileResourceLoader::open(const std::string zipfile)
 {
     close();
     
-    
-    size_t marker = zipfile.find_last_of(".");
-    NSString *fileName = [NSString stringWithUTF8String:zipfile.substr(0, marker).c_str()];
-    NSString *extension = [NSString stringWithUTF8String:zipfile.substr(marker + 1).c_str()];
-    
-    //return [[NSBundle mainBundle] pathForResource:fileName ofType:extension];
-    
-    const char *stringAsChar = [[[NSBundle mainBundle] pathForResource:fileName ofType:extension] cStringUsingEncoding:[NSString defaultCStringEncoding]];
-    
-    //getBundledFile(zipfile);
-    
-    m_uf = unzOpen( stringAsChar );
+    m_uf = unzOpen( FileLoader::getInstance()->getFilePath(zipfile).c_str());
     
     if(m_uf)
     {

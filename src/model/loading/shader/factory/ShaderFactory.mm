@@ -7,6 +7,7 @@
 //
 
 #include "ShaderFactory.h"
+#include "FileLoader.h"
 
 GLuint ShaderFactory::loadShader(ShaderFactoryKey *vertex_fragment_shaders)
 {
@@ -120,24 +121,7 @@ bool ShaderFactory::linkProgram(GLuint programHandle)
 bool ShaderFactory::compileShader(GLuint &shaderHandle, GLenum type, std::string file)
 {
     GLint status;
-    const GLchar *source;
-    
-    size_t marker = file.find_last_of(".");
-    NSString *fileName = [NSString stringWithUTF8String:file.substr(0, marker).c_str()];
-    NSString *extension = [NSString stringWithUTF8String:file.substr(marker + 1).c_str()];
-    
-    NSString* fullPath = [[NSBundle mainBundle] pathForResource:fileName ofType:extension];
-    
-    NSError* error;
-    NSString *shaderString = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
-    
-    if (!shaderString)
-    {
-        NSLog(@"Error loading shader(%s): %@", file.c_str(), error.localizedDescription);
-        return false;
-    }
-    
-    source = [shaderString UTF8String];
+    const GLchar *source = FileLoader::getInstance()->getFileContents(file).c_str();
     
     shaderHandle = glCreateShader(type);
     glShaderSource(shaderHandle, 1, &source, NULL);
