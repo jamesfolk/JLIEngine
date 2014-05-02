@@ -68,17 +68,17 @@ end
 
 -- Start cube Collision Response Functions -----------------------------------------------
 function cubeCollisionResponse(currentEntity, otherEntity, point)
-    --print("cubeCollisionResponse")
-    local cr = currentEntity:getCollisionResponseBehavior()
+    print("cubeCollisionResponse")
+--    local cr = currentEntity:getCollisionResponseBehavior()
 --    cr:reset()
-    --print("collide " .. currentEntity:getName())
+--    print("collide " .. currentEntity:getName())
 end
 -- End   cube Collision Response Functions -----------------------------------------------
 
 -- Start planeobject Collision Response Functions -----------------------------------------------
 function planeobjectCollisionResponse(currentEntity, otherEntity, point)
     --print("planeobjectCollisionResponse")
-    local cr = currentEntity:getCollisionResponseBehavior()
+--    local cr = currentEntity:getCollisionResponseBehavior()
 --    cr:reset()
     --print("collide " .. currentEntity:getName())
 end
@@ -87,7 +87,7 @@ end
 -- Start raycone Collision Response Functions -----------------------------------------------
 function rayconeCollisionResponse(currentEntity, otherEntity, point)
     --print("rayconeCollisionResponse")
-    local cr = currentEntity:getCollisionResponseBehavior()
+--    local cr = currentEntity:getCollisionResponseBehavior()
 --    cr:reset()
     --print("collide " .. currentEntity:getName())
 end
@@ -96,7 +96,7 @@ end
 -- Start skybox Collision Response Functions -----------------------------------------------
 function skyboxCollisionResponse(currentEntity, otherEntity, point)
     --print("skyboxCollisionResponse")
-    local cr = currentEntity:getCollisionResponseBehavior()
+--    local cr = currentEntity:getCollisionResponseBehavior()
 --    cr:reset()
     --print("collide " .. currentEntity:getName())
 end
@@ -105,21 +105,21 @@ end
 -- Start sphere Collision Response Functions -----------------------------------------------
 function sphereCollisionResponse(currentEntity, otherEntity, point)
     print("sphereCollisionResponse")
-    local cr = currentEntity:getCollisionResponseBehavior()
+--    local cr = currentEntity:getCollisionResponseBehavior()
     --print("collide " .. currentEntity:getName())
 end
 -- End   sphere Collision Response Functions -----------------------------------------------
 
 -- Start cube State Functions -----------------------------------------------
 function cubeEnterState(currentEntity)
-    --print("cubeEnterState")
+--    print("cubeEnterState")
 end
 function cubeUpdateState(currentEntity, deltaTimeStep)
---    --print("cubeUpdateState")
+--    print("cubeUpdateState")
 --    --print(currentEntity)
 end
 function cubeExitState(currentEntity)
-    --print("cubeExitState")
+--    print("cubeExitState")
 end
 function cubeOnMessage(currentEntity, telegram)
     --print("cubeOnMessage")
@@ -176,7 +176,7 @@ function sphereEnterState(currentEntity)
     --print("sphereEnterState")
 end
 function sphereUpdateState(currentEntity, deltaTimeStep)
-    print("sphereUpdateState")
+--    print("sphereUpdateState")
 end
 function sphereExitState(currentEntity)
     --print("sphereExitState")
@@ -400,7 +400,7 @@ function Enter()
 --    print("entity state machine id #" .. esmid)
     
     
---    entityState = jli.BaseEntityState.create(jli.EntityStateType_Lua)
+    entityState = jli.BaseEntityState.create(jli.EntityStateType_Lua)
 --    print("entity state ID # " .. entityState:getID())
     
     createCollisionResponse()

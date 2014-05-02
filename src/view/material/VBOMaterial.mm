@@ -54,6 +54,13 @@ void VBOMaterial::loadTexture(VertexBufferObject *owner,
     m_TextureUniform = glGetUniformLocation(owner->getProgramUsed(), buffer);
 }
 
+void VBOMaterial::loadTexture(VertexBufferObject *owner,
+                              const IDType ID,
+                              const unsigned int textureIndex)
+{
+    
+}
+
 void VBOMaterial::loadVec3(VertexBufferObject *owner,
                            const std::string &glslName)
 {

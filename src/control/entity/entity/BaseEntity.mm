@@ -284,8 +284,13 @@ void BaseEntity::setVertexBufferObject(const IDType ID)
     
     m_vertexBufferObjectFactoryID = ID;
     
+    
+    
     if(getVertexBufferObject())
+    {
         getVertexBufferObject()->registerEntity(this);
+        setName(getVertexBufferObject()->getName());
+    }
 }
 
 const btVector3 &BaseEntity::getScale()const

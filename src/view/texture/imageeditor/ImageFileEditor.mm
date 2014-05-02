@@ -213,8 +213,8 @@ static void jliImageGenId( JLIimage	  *_SIO2image,
         
 		_SIO2image->filter = _filter;
         
-		glTexEnvf( GL_TEXTURE_FILTER_CONTROL_EXT,
-                  GL_TEXTURE_LOD_BIAS_EXT, _SIO2image->filter );
+//		glTexEnvf( GL_TEXTURE_FILTER_CONTROL_EXT,
+//                  GL_TEXTURE_LOD_BIAS_EXT, _SIO2image->filter );
         
         
 		if( !jliIsStateEnabled( _flags, SIO2_IMAGE_MIPMAP ) )

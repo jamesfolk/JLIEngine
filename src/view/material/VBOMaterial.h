@@ -38,6 +38,10 @@ public:
                      const std::string &filename,
                      const unsigned int textureIndex);
     
+    void loadTexture(VertexBufferObject *owner,
+                     const IDType ID,
+                     const unsigned int textureIndex);
+    
     void loadVec3(VertexBufferObject *owner, const std::string &glslName);
     void unLoadVec3(VertexBufferObject *owner, const std::string &glslName);
     bool setVec3(VertexBufferObject *owner, const std::string &glslName, const btVector3 &vec);

@@ -539,9 +539,7 @@ bool LuaVM::loadString(const std::string &str)
 
 void LuaVM::getError(int error_code)
 {
-    NSLog(@"[ LuaVM ERROR %d: %s.",
-          error_code,
-          lua_tostring( m_lua_State, -1 ));
+    NSLog(@"LuaVM ERROR \'%s\'.", lua_tostring( m_lua_State, -1 ));
 	
 	lua_pop( m_lua_State, 1 );
 }
