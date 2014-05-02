@@ -212,6 +212,12 @@ public:
     
     GLuint getProgramUsed()const;
 public:
+    void loadTexture(const std::string &filename,
+                     const unsigned int textureIndex)
+    {
+        getMaterial(textureIndex)->loadTexture(this, filename, textureIndex);
+    }
+public:
     template<class Function>
     void get_each_indice(Function fn)const;
     
@@ -306,9 +312,9 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
         m_GLSLUniforms.modelViewMatrix = glGetUniformLocation(program, "modelViewMatrix");check_gl_error()
         m_GLSLUniforms.projectionMatrix = glGetUniformLocation(program, "projectionMatrix");check_gl_error()
         
-        for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-            if(getMaterial(textureIndex))
-                getMaterial(textureIndex)->loadGLSL(this, textureIndex);
+//        for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
+//            if(getMaterial(textureIndex))
+//                getMaterial(textureIndex)->loadGLSL(this, textureIndex);
         
         glEnableVertexAttribArray(m_GLSLAttributes.position);check_gl_error()
         glVertexAttribPointer(m_GLSLAttributes.position,

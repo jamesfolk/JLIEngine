@@ -400,7 +400,7 @@ btVector3 VertexBufferObject::getHalfExtends() const
     const BaseMeshObject *mo = ZipFileResourceLoader::getInstance()->getMeshObject(getName());
     
     if(mo)
-        mo->getHalfExtends();
+        return mo->getHalfExtends();
     
     return btVector3(0,0,0);
 }

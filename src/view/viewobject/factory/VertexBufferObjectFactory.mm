@@ -37,7 +37,6 @@ void VertexBufferObjectFactory::render()
 
 IDType VertexBufferObjectFactory::createViewObject(unsigned int num_instances,
                                                    const std::string &zipfile_object_name,
-                                                   IDType texture_factory_id,
                                                    IDType shader_factory_id)
 {
     VertexBufferObjectInfo *info = new VertexBufferObjectInfo(zipfile_object_name);
@@ -53,22 +52,6 @@ IDType VertexBufferObjectFactory::createViewObject(unsigned int num_instances,
     info = NULL;
     
     return ret;
-//    BaseViewObjectInfo *info = new BaseViewObjectInfo(ShaderFactory::getInstance()->getCurrentShaderID(),
-//                                                      zipfile_object_name,
-//                                                      texture_factory_ids,
-//                                                      num_texture_factory_ids,
-//                                                      textureBehaviorFactoryIDs,
-//                                                      num_texture_behaviors);
-//    
-//    IDType ret = ViewObjectFactory::getInstance()->create(info);
-//    
-//    BaseViewObject *vo = ViewObjectFactory::getInstance()->get(ret);
-//    
-//    ZipFileResourceLoader::getInstance()->getMeshObject(zipfile_object_name)->load(vo);
-//    
-//    delete info;
-//    info = NULL;
-//    return ret;
 }
 VertexBufferObject *VertexBufferObjectFactory::ctor(VertexBufferObjectInfo *constructionInfo)
 {

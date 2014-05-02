@@ -14,18 +14,16 @@ extern const unsigned int TEXTURE_MAX;
 
 VBOMaterial::VBOMaterial() :
 AbstractBehavior<VertexBufferObject>(NULL),
-m_TextureFileName(""),
 m_ImageFileEditor(new ImageFileEditor()),
-m_TextureUniform(0)
+m_TextureUniform(-1)
 {
     
 }
 
 VBOMaterial::VBOMaterial(const VBOMaterialInfo &info):
 AbstractBehavior<VertexBufferObject>(NULL),
-m_TextureFileName(""),
 m_ImageFileEditor(new ImageFileEditor()),
-m_TextureUniform(0)
+m_TextureUniform(-1)
 {
     
 }
@@ -38,28 +36,65 @@ VBOMaterial::~VBOMaterial()
     m_ImageFileEditor = NULL;
 }
 
-void VBOMaterial::setTextureFilename(const std::string &filename)
+void VBOMaterial::loadTexture(VertexBufferObject *owner,
+                              const std::string &filename,
+                              const unsigned int textureIndex)
 {
-    m_TextureFileName = filename;
+    btAssert(owner->hasTextureAttribute(textureIndex));
+    
+    setOwner(owner);
+    
+    m_ImageFileEditor->unload();
+    
+    m_ImageFileEditor->load(filename);
+    
+    char buffer[256];
+    sprintf(buffer, "texture%d", textureIndex);
+    
+    m_TextureUniform = glGetUniformLocation(owner->getProgramUsed(), buffer);
 }
 
-void VBOMaterial::loadGLSL(VertexBufferObject *owner, const unsigned int textureIndex)
+void VBOMaterial::loadVec3(VertexBufferObject *owner,
+                           const std::string &glslName)
 {
     setOwner(owner);
     
-    m_ImageFileEditor->load(m_TextureFileName);
-    char buffer[256];
-    sprintf(buffer, "texture%d", textureIndex);
-    m_TextureUniform = glGetUniformLocation(owner->getProgramUsed(), buffer);
+    m_3vLocations.insert(btHashString(glslName.c_str()),
+                         glGetUniformLocation(owner->getProgramUsed(), glslName.c_str()));
     
-    btAssert(owner->hasTextureAttribute(textureIndex));
+    
+}
+
+void VBOMaterial::unLoadVec3(VertexBufferObject *owner, const std::string &glslName)
+{
+    m_3vLocations.remove(btHashString(glslName.c_str()));
+}
+
+bool VBOMaterial::setVec3(VertexBufferObject *owner,
+                          const std::string &glslName,
+                          const btVector3 &vec)
+{
+    setOwner(owner);
+    
+    GLuint *i = m_3vLocations.find(btHashString(glslName.c_str()));
+    if(i)
+    {
+        glUniform3f(*i, vec.x(), vec.y(), vec.z());
+        
+        return true;
+    }
+    return false;
 }
 
 void VBOMaterial::render(VertexBufferObject *owner, const unsigned int textureIndex)
 {
     setOwner(owner);
     
-    glActiveTexture(GL_TEXTURE0 + textureIndex);
-    m_ImageFileEditor->reload();
-    glUniform1i(m_TextureUniform, 0);
+    if(-1 != m_TextureUniform)
+    {
+        glActiveTexture(GL_TEXTURE0 + textureIndex);
+//        m_ImageFileEditor->reload();
+        glUniform1i(m_TextureUniform, 0);
+    }
+
 }

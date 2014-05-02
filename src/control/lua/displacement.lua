@@ -40,8 +40,8 @@ function GGJ.getMeshID(self, name)
     return self.meshIDs[name]
 end
 
-function GGJ.createViewObject(self, amt, name, textureID, shaderID)
-    self.meshIDs[name] = jli.VertexBufferObjectFactory_createViewObject(amt, name, textureID, shaderID)
+function GGJ.createViewObject(self, amt, name, shaderID)
+    self.meshIDs[name] = jli.VertexBufferObjectFactory_createViewObject(amt, name, shaderID)
 end
 
 
@@ -202,7 +202,6 @@ end
 
 
 function createCube(origin)
-    --self.meshIDs["cube"] = jli.ViewObjectFactory_createViewObject("cube", self.textureIDs["cubetexture1"]);
     
     local entityStateMachine = jli.EntityStateMachine.create()
 --    local textureID = ggj:getTextureID("cubetexture1")
@@ -317,6 +316,8 @@ function createPlane()
     local vbo = vertexBufferFactory:get(planeViewObjectID)
     vbo:setMaterial(0, materialID);
     
+    vbo:loadTexture("radiation_box.tga", 0);
+    
 --    vbo:loadGLSL(shaderID, materialID)
     
     
@@ -423,8 +424,8 @@ function Enter()
     shaderID = jli.TheShaderFactory.getInstance():create(key)
     
 --    ggj:createViewObject(5, "sphere", ggj:getTextureID("spheretexture"), shaderID);
-    ggj:createViewObject(1000, "cube", ggj:getTextureID("cubetexture1"), shaderID)
-    ggj:createViewObject(1, "planeobject", ggj:getTextureID("floor"), shaderID)
+    ggj:createViewObject(1000, "cube", shaderID)
+    ggj:createViewObject(1, "planeobject", shaderID)
 --    ggj:createViewObject(100, "sphere", ggj:getTextureID("spheretexture"), shaderID)
     
     print(materialFactory)
