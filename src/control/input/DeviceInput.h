@@ -635,9 +635,6 @@ class DeviceTouch : public DeviceInputTime
     unsigned int m_touchTotal;
 public:
     DeviceTouch(){}
-
-    void pack();
-    char *unpack()const;
     
     const btVector2 &getPosition()const{return m_pos;}
     const btVector2 &getPreviousPosition()const{return m_prev_pos;}

@@ -1,3 +1,5 @@
+//a basic fragment shader
+
 uniform sampler2D texture0;
 
 varying lowp vec4 destinationColor;

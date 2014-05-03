@@ -204,8 +204,8 @@ end
 function createCube(origin)
     
     local entityStateMachine = jli.EntityStateMachine.create()
---    local textureID = ggj:getTextureID("cubetexture1")
-    local viewObjectID = ggj:getMeshID("cube")
+--    local viewObjectID = ggj:getMeshID("cube")
+    local viewObjectID = ggj:getMeshID("sphere")
 
     --load the vertexBufferObject
     local shapeID = jli.CollisionShapeFactory_createShape(viewObjectID,
@@ -232,7 +232,7 @@ function createRandomObject()
     local aabMinPlane = jli.btVector3(0,0,0);
     local aabMaxPlane = jli.btVector3(0,0,0);
     
---    planeEntity:getRigidBody():getAabb(aabMinPlane, aabMaxPlane)
+    planeEntity:getRigidBody():getAabb(aabMinPlane, aabMaxPlane)
     
     local buffer = 20.0
     local x = 0
@@ -253,12 +253,13 @@ function createRandomObject()
         z = aabMinPlane:z() + buffer
     end
     
-    x = -20--aabMinPlane:x() + buffer
-    z = -20--aabMinPlane:z() + buffer
+    x = aabMinPlane:x() + buffer
+    z = aabMinPlane:z() + buffer
     
     entity = createCube(jli.btVector3(x, 10.0, z))
     
---    entity:pursue(camera:getID())
+    
+    entity:pursue(camera:getID())
     
     entity:setMaxLinearSpeed(5.0)
     entity:setMaxLinearForce(5.0)
@@ -316,7 +317,8 @@ function createPlane()
     local vbo = vertexBufferFactory:get(planeViewObjectID)
     vbo:setMaterial(0, materialID);
     
-    vbo:loadTexture("radiation_box.tga", 0);
+--    vbo:loadTexture("radiation_box.tga", 0);
+    vbo:loadTexture("Tarsier.png", 0);
     
 --    vbo:loadGLSL(shaderID, materialID)
     
@@ -426,7 +428,7 @@ function Enter()
 --    ggj:createViewObject(5, "sphere", ggj:getTextureID("spheretexture"), shaderID);
     ggj:createViewObject(1000, "cube", shaderID)
     ggj:createViewObject(1, "planeobject", shaderID)
---    ggj:createViewObject(100, "sphere", ggj:getTextureID("spheretexture"), shaderID)
+    ggj:createViewObject(100, "sphere", shaderID)
     
     print(materialFactory)
     local materialInfo = jli.VBOMaterialInfo()

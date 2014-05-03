@@ -7,7 +7,7 @@
 //
 
 #include "ImageFileEditor.h"
-#import <GLKit/GLKTextureLoader.h>
+//#import <GLKit/GLKTextureLoader.h>
 //#include <OpenGLES/ES2/gl.h>
 //#include <OpenGLES/ES2/glext.h>
 #include "png.h"

@@ -1,3 +1,5 @@
+//a basic vertex shader.
+
 attribute vec3 position;
 attribute vec4 sourceColor;
 //attribute vec4 normal;
