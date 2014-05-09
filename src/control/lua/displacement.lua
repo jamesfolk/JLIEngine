@@ -315,7 +315,7 @@ function createPlane()
     
     
     local vbo = vertexBufferFactory:get(planeViewObjectID)
-    vbo:setMaterial(0, materialID);
+    vbo:setMaterial(materialID);
     
 --    vbo:loadTexture("radiation_box.tga", 0);
     vbo:loadTexture("Tarsier.png", 0);
@@ -422,7 +422,8 @@ function Enter()
 --    materialID = materialFactory:createObject()
     
     --create the shader
-    local key = jli.ShaderFactoryKey("PixelLighting.vsh", "PixelLighting.fsh")
+--    local key = jli.ShaderFactoryKey("PixelLighting.vsh", "PixelLighting.fsh")
+    local key = jli.ShaderFactoryKey("MyShader.vsh", "MyShader.fsh")
     shaderID = jli.TheShaderFactory.getInstance():create(key)
     
 --    ggj:createViewObject(5, "sphere", ggj:getTextureID("spheretexture"), shaderID);

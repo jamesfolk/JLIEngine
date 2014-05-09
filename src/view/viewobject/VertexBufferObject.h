@@ -69,6 +69,7 @@ public AbstractFactoryObject
         
         GLuint modelViewMatrix;
         GLuint projectionMatrix;
+        GLuint modelViewProjectionMatrix;
     }m_GLSLUniforms;
     
     unsigned int m_NumTextures;
@@ -86,7 +87,7 @@ public AbstractFactoryObject
     
     GLboolean m_ShouldRender;
     
-    IDType *m_MaterialFactoryIDs;
+    IDType m_MaterialFactoryIDs;
     IDType m_ShaderFactoryID;
     
     GLsizei m_Stride;
@@ -201,9 +202,9 @@ public:
     
     void markInView(BaseEntity *entity);
     
-    void setMaterial(unsigned int index, const IDType ID);
-    const VBOMaterial*	getMaterial(unsigned int index) const;
-    VBOMaterial*	getMaterial(unsigned int index);
+    void setMaterial(const IDType ID);
+    const VBOMaterial*	getMaterial() const;
+    VBOMaterial*	getMaterial();
     
     btVector3 getHalfExtends() const;
     btTransform getInitialTransform() const;
@@ -215,7 +216,44 @@ public:
     void loadTexture(const std::string &filename,
                      const unsigned int textureIndex)
     {
-        getMaterial(textureIndex)->loadTexture(this, filename, textureIndex);
+        getMaterial()->loadTexture(this, filename, textureIndex);
+    }
+    void loadUniform(const std::string &glslUniformName)
+    {
+        getMaterial()->loadUniform(this, glslUniformName);
+    }
+    void unLoadUniform(const std::string &glslUniformName)
+    {
+        getMaterial()->unLoadUniform(this, glslUniformName);
+    }
+    
+    GLboolean setUniformValue(const std::string &glslUniformName, const GLint &v)
+    {
+        return getMaterial()->setUniformValue(this, glslUniformName, v);
+    }
+    GLboolean setUniformValue(const std::string &glslUniformName, const btScalar &v)
+    {
+        return getMaterial()->setUniformValue(this, glslUniformName, v);
+    }
+    GLboolean setUniformValue(const std::string &glslUniformName, const btVector2 &v)
+    {
+        return getMaterial()->setUniformValue(this, glslUniformName, v);
+    }
+    GLboolean setUniformValue(const std::string &glslUniformName, const btVector3 &v)
+    {
+        return getMaterial()->setUniformValue(this, glslUniformName, v);
+    }
+    GLboolean setUniformValue(const std::string &glslUniformName, const btVector4 &v)
+    {
+        return getMaterial()->setUniformValue(this, glslUniformName, v);
+    }
+    GLboolean setUniformValue(const std::string &glslUniformName, const btMatrix3x3 &v)
+    {
+        return getMaterial()->setUniformValue(this, glslUniformName, v);
+    }
+    GLboolean setUniformValue(const std::string &glslUniformName, const btTransform &v)
+    {
+        return getMaterial()->setUniformValue(this, glslUniformName, v);
     }
 public:
     template<class Function>
@@ -290,7 +328,7 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
         
         const char *const textureCoord[]  =
         {
-            "textureCoord0",
+            "texture",
             "textureCoord1",
             "textureCoord2",
             "textureCoord3",
@@ -299,22 +337,30 @@ GLboolean VertexBufferObject::loadGLBuffer(const unsigned int num_instances,
             "textureCoord6",
             "textureCoord7"
         };
+        const char *const position = "position";
+        const char *const sourceColor = "color";
+        const char *const transformmatrix = "transformMatrix";
+        const char *const normal = "normal";
+        
+        const char *const modelViewMatrix = "modelViewMatrix";
+        const char *const projectionMatrix = "projectionMatrix";
+        const char *const modelViewProjectionMatrix = "modelViewProjectionMatrix";
+        
+        
+        
         
         glUseProgram(program);
         
-        m_GLSLAttributes.position = glGetAttribLocation(program, "position");
-        m_GLSLAttributes.color = glGetAttribLocation(program, "sourceColor");
-        m_GLSLAttributes.transformmatrix = glGetAttribLocation(program, "transformmatrix");
-        m_GLSLAttributes.normal = glGetAttribLocation(program, "normal");
+        m_GLSLAttributes.position = glGetAttribLocation(program, position);
+        m_GLSLAttributes.color = glGetAttribLocation(program, sourceColor);
+        m_GLSLAttributes.transformmatrix = glGetAttribLocation(program, transformmatrix);
+        m_GLSLAttributes.normal = glGetAttribLocation(program, normal);
         for(int textureIndex = 0; textureIndex < TEXTURE_MAX; ++textureIndex)
             m_GLSLAttributes.textureCoord[textureIndex] = glGetAttribLocation(program, textureCoord[textureIndex]);
         
-        m_GLSLUniforms.modelViewMatrix = glGetUniformLocation(program, "modelViewMatrix");check_gl_error()
-        m_GLSLUniforms.projectionMatrix = glGetUniformLocation(program, "projectionMatrix");check_gl_error()
-        
-//        for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-//            if(getMaterial(textureIndex))
-//                getMaterial(textureIndex)->loadGLSL(this, textureIndex);
+        m_GLSLUniforms.modelViewMatrix = glGetUniformLocation(program, modelViewMatrix);check_gl_error()
+        m_GLSLUniforms.projectionMatrix = glGetUniformLocation(program, projectionMatrix);check_gl_error()
+        m_GLSLUniforms.modelViewProjectionMatrix = glGetUniformLocation(program, modelViewProjectionMatrix);
         
         glEnableVertexAttribArray(m_GLSLAttributes.position);check_gl_error()
         glVertexAttribPointer(m_GLSLAttributes.position,

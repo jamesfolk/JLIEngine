@@ -28,25 +28,33 @@ public AbstractBehavior<VertexBufferObject>
     ImageFileEditor *m_ImageFileEditor;
     GLuint m_TextureUniform;
     
-    btHashMap<btHashString, GLuint> m_3vLocations;
+    btHashMap<btHashString, GLuint> m_Locations;
 public:
     VBOMaterial();
     VBOMaterial(const VBOMaterialInfo &info);
     virtual ~VBOMaterial();
     
-    void loadTexture(VertexBufferObject *owner,
+    void loadTexture(VertexBufferObject *,
                      const std::string &filename,
                      const unsigned int textureIndex);
     
-    void loadTexture(VertexBufferObject *owner,
+    void loadTexture(VertexBufferObject *,
                      const IDType ID,
                      const unsigned int textureIndex);
     
-    void loadVec3(VertexBufferObject *owner, const std::string &glslName);
-    void unLoadVec3(VertexBufferObject *owner, const std::string &glslName);
-    bool setVec3(VertexBufferObject *owner, const std::string &glslName, const btVector3 &vec);
+    void loadUniform(VertexBufferObject *, const std::string &);
+    void unLoadUniform(VertexBufferObject *, const std::string &);
     
-    virtual void render(VertexBufferObject *owner, const unsigned int textureIndex);
+//    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const GLboolean &);
+    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const GLint &);
+    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btScalar &);
+    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btVector2 &);
+    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btVector3 &);
+    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btVector4 &);
+    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btMatrix3x3 &);
+    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btTransform &);
+    
+    virtual void render(VertexBufferObject *, const unsigned int textureIndex);
 };
 
 #endif /* defined(__MazeADay__VBOMaterial__) */

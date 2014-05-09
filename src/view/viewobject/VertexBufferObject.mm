@@ -86,7 +86,7 @@ m_indexBuffer(0),
 m_ModelViewArray(NULL),
 m_NumInstances(0),
 m_ShouldRender(GL_FALSE),
-m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
+m_MaterialFactoryIDs(0),
 m_ShaderFactoryID(0),
 m_Stride(0),
 m_PositionOffset(0),
@@ -94,7 +94,6 @@ m_NormalOffset(0),
 m_ColorOffset(0),
 m_TextureOffset(new size_t[TEXTURE_MAX])
 {
-    memset(m_MaterialFactoryIDs, 0, sizeof(IDType) * TEXTURE_MAX);
     memset(m_TextureOffset, 0, sizeof(GLsizei) * TEXTURE_MAX);
     
     char buffer[32];
@@ -113,7 +112,7 @@ m_indexBuffer(rhs.m_indexBuffer),
 m_ModelViewArray(NULL),
 m_NumInstances(rhs.m_NumInstances),
 m_ShouldRender(rhs.m_ShouldRender),
-m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
+m_MaterialFactoryIDs(0),
 m_ShaderFactoryID(rhs.m_ShaderFactoryID),
 m_Stride(rhs.m_Stride),
 m_PositionOffset(rhs.m_PositionOffset),
@@ -121,7 +120,6 @@ m_NormalOffset(rhs.m_NormalOffset),
 m_ColorOffset(rhs.m_ColorOffset),
 m_TextureOffset(new size_t[TEXTURE_MAX])
 {
-    memcpy(m_MaterialFactoryIDs, rhs.m_MaterialFactoryIDs, sizeof(IDType) * TEXTURE_MAX);
     memcpy(m_TextureOffset, rhs.m_TextureOffset, sizeof(size_t) * TEXTURE_MAX);
     
     char buffer[32];
@@ -140,7 +138,7 @@ m_indexBuffer(0),
 m_ModelViewArray(NULL),
 m_NumInstances(0),
 m_ShouldRender(GL_FALSE),
-m_MaterialFactoryIDs(new IDType[TEXTURE_MAX]),
+m_MaterialFactoryIDs(0),
 m_ShaderFactoryID(0),
 m_Stride(0),
 m_PositionOffset(0),
@@ -148,7 +146,6 @@ m_NormalOffset(0),
 m_ColorOffset(0),
 m_TextureOffset(new size_t[TEXTURE_MAX])
 {
-    memset(m_MaterialFactoryIDs, 0, sizeof(IDType) * TEXTURE_MAX);
     memset(m_TextureOffset, 0, sizeof(GLsizei) * TEXTURE_MAX);
     
     setName(info.m_viewObjectName);
@@ -160,9 +157,6 @@ VertexBufferObject::~VertexBufferObject()
     
     delete [] m_TextureOffset;
     m_TextureOffset = NULL;
-    
-    delete [] m_MaterialFactoryIDs;
-    m_MaterialFactoryIDs = NULL;
 }
 
 VertexBufferObject &VertexBufferObject::operator=(const VertexBufferObject &rhs)
@@ -185,7 +179,6 @@ VertexBufferObject &VertexBufferObject::operator=(const VertexBufferObject &rhs)
         m_NormalOffset = rhs.m_NormalOffset;
         m_ColorOffset = rhs.m_ColorOffset;
         
-        memcpy(m_MaterialFactoryIDs, rhs.m_MaterialFactoryIDs, sizeof(IDType) * TEXTURE_MAX);
         memcpy(m_TextureOffset, rhs.m_TextureOffset, sizeof(size_t) * TEXTURE_MAX);
         
         delete [] m_ModelViewArray;
@@ -325,9 +318,14 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
     pCamera->getWorldTransform().inverse().getOpenGLMatrix(m);
     glUniformMatrix4fv(m_GLSLUniforms.modelViewMatrix, 1, 0, m);check_gl_error()
     
+    btTransform modelViewProjectionMatrix(pCamera->getProjection2() * pCamera->getWorldTransform().inverse());
+    modelViewProjectionMatrix.getOpenGLMatrix(m);
+    glUniformMatrix4fv(m_GLSLUniforms.modelViewProjectionMatrix, 1, 0, m);
+    
+    
     for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
-        if(getMaterial(textureIndex))
-            getMaterial(textureIndex)->render(this, textureIndex);
+        if(getMaterial())
+            getMaterial()->render(this, textureIndex);
 
     
     
@@ -375,24 +373,20 @@ void VertexBufferObject::markInView(BaseEntity *entity)
     m_ShouldRender = GL_TRUE;
 }
 
-void VertexBufferObject::setMaterial(unsigned int index, const IDType ID)
+void VertexBufferObject::setMaterial(const IDType ID)
 {
-    btAssert(hasTextureAttribute(index));
     
-    m_MaterialFactoryIDs[index] = ID;
+    m_MaterialFactoryIDs = ID;
 }
 
-const VBOMaterial*	VertexBufferObject::getMaterial(unsigned int index) const
+const VBOMaterial*	VertexBufferObject::getMaterial() const
 {
-    btAssert(hasTextureAttribute(index));
     
-    return VBOMaterialFactory::getInstance()->get(m_MaterialFactoryIDs[index]);
+    return VBOMaterialFactory::getInstance()->get(m_MaterialFactoryIDs);
 }
-VBOMaterial*	VertexBufferObject::getMaterial(unsigned int index)
+VBOMaterial*	VertexBufferObject::getMaterial()
 {
-    btAssert(hasTextureAttribute(index));
-    
-    return VBOMaterialFactory::getInstance()->get(m_MaterialFactoryIDs[index]);
+    return VBOMaterialFactory::getInstance()->get(m_MaterialFactoryIDs);
 }
 
 btVector3 VertexBufferObject::getHalfExtends() const
