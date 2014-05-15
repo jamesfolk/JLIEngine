@@ -34,15 +34,22 @@ VBOMaterial::~VBOMaterial()
     
     delete m_ImageFileEditor;
     m_ImageFileEditor = NULL;
+    
+    char *buffer = NULL;
+    for(int i = 0; i < m_AllocatedNamesArray.size(); ++i)
+    {
+        buffer = m_AllocatedNamesArray[i];
+        delete [] buffer;
+    }
 }
 
 void VBOMaterial::loadTexture(VertexBufferObject *owner,
                               const std::string &filename,
                               const unsigned int textureIndex)
 {
-    btAssert(owner->hasTextureAttribute(textureIndex));
-    
     setOwner(owner);
+    
+    btAssert(getOwner()->hasTextureAttribute(textureIndex));
     
     m_ImageFileEditor->unload();
     
@@ -51,59 +58,48 @@ void VBOMaterial::loadTexture(VertexBufferObject *owner,
     char buffer[256];
     sprintf(buffer, "texture%d", textureIndex);
     
-    m_TextureUniform = glGetUniformLocation(owner->getProgramUsed(), buffer);
+    m_TextureUniform = glGetUniformLocation(getOwner()->getProgramUsed(), buffer);
 }
 
 void VBOMaterial::loadTexture(VertexBufferObject *owner,
                               const IDType ID,
                               const unsigned int textureIndex)
 {
-    
+    setOwner(owner);
 }
 
-void VBOMaterial::loadUniform(VertexBufferObject *owner, const std::string &glslName)
+void VBOMaterial::loadUniform(VertexBufferObject *owner,  const std::string &glslName)
 {
     setOwner(owner);
     
-    m_Locations.insert(btHashString(glslName.c_str()),
-                       glGetUniformLocation(owner->getProgramUsed(), glslName.c_str()));
+    char *buffer = new char[glslName.length()];
+    strcpy(buffer, glslName.c_str());
+    
+    m_Locations.insert(btHashString(buffer),
+                       glGetUniformLocation(getOwner()->getProgramUsed(), glslName.c_str()));
+    m_AllocatedNamesArray.push_back(buffer);
+    
 }
 
-void VBOMaterial::unLoadUniform(VertexBufferObject *owner, const std::string &glslName)
+void VBOMaterial::unLoadUniform( const std::string &glslName)
 {
     m_Locations.remove(btHashString(glslName.c_str()));
 }
 
-
-//GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::string &glslName, const GLboolean &v)
-//{
-//    setOwner(owner);
-//    
-//    GLuint *i = m_Locations.find(btHashString(glslName.c_str()));
-//    if(i)
-//    {
-//        glUniform1i(*i, (v)?GL_TRUE:GL_FALSE);
-//        
-//        return true;
-//    }
-//    return false;
-//}
-GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::string &glslName, const GLint &v)
+GLboolean VBOMaterial::setUniformValue( const std::string &glslName, const GLint &v)
 {
-    setOwner(owner);
-    
     GLuint *i = m_Locations.find(btHashString(glslName.c_str()));
     if(i)
     {
         glUniform1i(*i, v);
-        
         return true;
     }
     return false;
 }
-GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::string &glslName, const btScalar &v)
+
+GLboolean VBOMaterial::setUniformValue( const std::string &glslName, const btScalar &v)
 {
-    setOwner(owner);
+    
     
     GLuint *i = m_Locations.find(btHashString(glslName.c_str()));
     if(i)
@@ -114,9 +110,10 @@ GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::str
     }
     return false;
 }
-GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::string &glslName, const btVector2 &v)
+
+GLboolean VBOMaterial::setUniformValue( const std::string &glslName, const btVector2 &v)
 {
-    setOwner(owner);
+    
     
     GLuint *i = m_Locations.find(btHashString(glslName.c_str()));
     if(i)
@@ -127,9 +124,10 @@ GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::str
     }
     return false;
 }
-GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::string &glslName, const btVector3 &v)
+
+GLboolean VBOMaterial::setUniformValue( const std::string &glslName, const btVector3 &v)
 {
-    setOwner(owner);
+    
     
     GLuint *i = m_Locations.find(btHashString(glslName.c_str()));
     if(i)
@@ -140,11 +138,12 @@ GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::str
     }
     return false;
 }
-GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::string &glslName, const btVector4 &v)
+
+GLboolean VBOMaterial::setUniformValue( const std::string &glslName, const btVector4 &v)
 {
-    setOwner(owner);
+    btHashString key(glslName.c_str());
+    const GLuint* i = m_Locations.find(key);
     
-    GLuint *i = m_Locations.find(btHashString(glslName.c_str()));
     if(i)
     {
         glUniform4f(*i, v.x(), v.y(), v.z(), v.w());
@@ -153,9 +152,10 @@ GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::str
     }
     return false;
 }
-GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::string &glslName, const btMatrix3x3 &v)
+
+GLboolean VBOMaterial::setUniformValue( const std::string &glslName, const btMatrix3x3 &v)
 {
-    setOwner(owner);
+    
     
     GLuint *i = m_Locations.find(btHashString(glslName.c_str()));
     if(i)
@@ -170,9 +170,10 @@ GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::str
     }
     return false;
 }
-GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::string &glslName, const btTransform &v)
+
+GLboolean VBOMaterial::setUniformValue( const std::string &glslName, const btTransform &v)
 {
-    setOwner(owner);
+    
     
     GLuint *i = m_Locations.find(btHashString(glslName.c_str()));
     if(i)
@@ -189,10 +190,8 @@ GLboolean VBOMaterial::setUniformValue(VertexBufferObject *owner, const std::str
 }
 
 
-void VBOMaterial::render(VertexBufferObject *owner, const unsigned int textureIndex)
+void VBOMaterial::render(const unsigned int textureIndex)
 {
-    setOwner(owner);
-    
     if(-1 != m_TextureUniform)
     {
         glActiveTexture(GL_TEXTURE0 + textureIndex);

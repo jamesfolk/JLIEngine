@@ -311,7 +311,7 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
     BaseCamera *pCamera = CameraFactory::getInstance()->getCurrentCamera();
     
     static GLfloat m[16];
-    
+
     pCamera->getProjection2().getOpenGLMatrix(m);
     glUniformMatrix4fv(m_GLSLUniforms.projectionMatrix, 1, 0, m);check_gl_error()
     
@@ -325,8 +325,17 @@ void VertexBufferObject::renderGLBuffer(GLenum drawmode)
     
     for(int textureIndex = 0; textureIndex < m_NumTextures; ++textureIndex)
         if(getMaterial())
-            getMaterial()->render(this, textureIndex);
+            getMaterial()->render(textureIndex);
 
+    
+    
+//    if(getMaterial())
+//    {
+//        getMaterial()->setUniformValue("materialSpecularColor", btVector4(1.0, 0.0, 0.0, 1.0));
+//        getMaterial()->setUniformValue("materialSpecularExponent", 0.5f);
+//        getMaterial()->setUniformValue("lightPosition", btVector4(0.0, -1.0, 0.0, 1.0));
+//    }
+    
     
     
     updateGLBuffer();

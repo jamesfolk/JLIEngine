@@ -222,39 +222,39 @@ public:
     {
         getMaterial()->loadUniform(this, glslUniformName);
     }
-    void unLoadUniform(const std::string &glslUniformName)
-    {
-        getMaterial()->unLoadUniform(this, glslUniformName);
-    }
-    
-    GLboolean setUniformValue(const std::string &glslUniformName, const GLint &v)
-    {
-        return getMaterial()->setUniformValue(this, glslUniformName, v);
-    }
-    GLboolean setUniformValue(const std::string &glslUniformName, const btScalar &v)
-    {
-        return getMaterial()->setUniformValue(this, glslUniformName, v);
-    }
-    GLboolean setUniformValue(const std::string &glslUniformName, const btVector2 &v)
-    {
-        return getMaterial()->setUniformValue(this, glslUniformName, v);
-    }
-    GLboolean setUniformValue(const std::string &glslUniformName, const btVector3 &v)
-    {
-        return getMaterial()->setUniformValue(this, glslUniformName, v);
-    }
-    GLboolean setUniformValue(const std::string &glslUniformName, const btVector4 &v)
-    {
-        return getMaterial()->setUniformValue(this, glslUniformName, v);
-    }
-    GLboolean setUniformValue(const std::string &glslUniformName, const btMatrix3x3 &v)
-    {
-        return getMaterial()->setUniformValue(this, glslUniformName, v);
-    }
-    GLboolean setUniformValue(const std::string &glslUniformName, const btTransform &v)
-    {
-        return getMaterial()->setUniformValue(this, glslUniformName, v);
-    }
+//    void unLoadUniform(const std::string &glslUniformName)
+//    {
+//        getMaterial()->unLoadUniform(glslUniformName);
+//    }
+//    
+//    GLboolean setUniformValue(const std::string &glslUniformName, const GLint &v)
+//    {
+//        return getMaterial()->setUniformValue(this, glslUniformName, v);
+//    }
+//    GLboolean setUniformValue(const std::string &glslUniformName, const btScalar &v)
+//    {
+//        return getMaterial()->setUniformValue(this, glslUniformName, v);
+//    }
+//    GLboolean setUniformValue(const std::string &glslUniformName, const btVector2 &v)
+//    {
+//        return getMaterial()->setUniformValue(this, glslUniformName, v);
+//    }
+//    GLboolean setUniformValue(const std::string &glslUniformName, const btVector3 &v)
+//    {
+//        return getMaterial()->setUniformValue(this, glslUniformName, v);
+//    }
+//    GLboolean setUniformValue(const std::string &glslUniformName, const btVector4 &v)
+//    {
+//        return getMaterial()->setUniformValue(this, glslUniformName, v);
+//    }
+//    GLboolean setUniformValue(const std::string &glslUniformName, const btMatrix3x3 &v)
+//    {
+//        return getMaterial()->setUniformValue(this, glslUniformName, v);
+//    }
+//    GLboolean setUniformValue(const std::string &glslUniformName, const btTransform &v)
+//    {
+//        return getMaterial()->setUniformValue(this, glslUniformName, v);
+//    }
 public:
     template<class Function>
     void get_each_indice(Function fn)const;

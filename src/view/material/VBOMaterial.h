@@ -29,32 +29,33 @@ public AbstractBehavior<VertexBufferObject>
     GLuint m_TextureUniform;
     
     btHashMap<btHashString, GLuint> m_Locations;
+    btAlignedObjectArray<char*> m_AllocatedNamesArray;
+    
 public:
     VBOMaterial();
     VBOMaterial(const VBOMaterialInfo &info);
     virtual ~VBOMaterial();
     
-    void loadTexture(VertexBufferObject *,
+    void loadTexture(VertexBufferObject *owner,
                      const std::string &filename,
                      const unsigned int textureIndex);
     
-    void loadTexture(VertexBufferObject *,
+    void loadTexture(VertexBufferObject *owner,
                      const IDType ID,
                      const unsigned int textureIndex);
     
     void loadUniform(VertexBufferObject *, const std::string &);
-    void unLoadUniform(VertexBufferObject *, const std::string &);
+    void unLoadUniform(const std::string &);
     
-//    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const GLboolean &);
-    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const GLint &);
-    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btScalar &);
-    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btVector2 &);
-    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btVector3 &);
-    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btVector4 &);
-    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btMatrix3x3 &);
-    GLboolean setUniformValue(VertexBufferObject *, const std::string &, const btTransform &);
+    GLboolean setUniformValue(const std::string &, const GLint &);
+    GLboolean setUniformValue(const std::string &, const btScalar &);
+    GLboolean setUniformValue(const std::string &, const btVector2 &);
+    GLboolean setUniformValue(const std::string &, const btVector3 &);
+    GLboolean setUniformValue(const std::string &, const btVector4 &);
+    GLboolean setUniformValue(const std::string &, const btMatrix3x3 &);
+    GLboolean setUniformValue(const std::string &, const btTransform &);
     
-    virtual void render(VertexBufferObject *, const unsigned int textureIndex);
+    virtual void render(const unsigned int textureIndex);
 };
 
 #endif /* defined(__MazeADay__VBOMaterial__) */

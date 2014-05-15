@@ -317,8 +317,27 @@ function createPlane()
     local vbo = vertexBufferFactory:get(planeViewObjectID)
     vbo:setMaterial(materialID);
     
+    vbo:getMaterial();
+    
+--    vbo:getMaterial():loadUniform("normalMatrix")
+    
 --    vbo:loadTexture("radiation_box.tga", 0);
     vbo:loadTexture("Tarsier.png", 0);
+    vbo:loadUniform("normalMatrix");
+    
+    vbo:loadUniform("materialSpecularColor");
+    vbo:loadUniform("materialSpecularExponent");
+    vbo:loadUniform("lightPosition");
+    
+    
+    
+--    GLboolean setUniformValue(const std::string &, const GLint &);
+
+--    uniform highp vec4 materialSpecularColor;
+--uniform highp float materialSpecularExponent;
+--uniform highp vec4 lightPosition;
+    
+    
     
 --    vbo:loadGLSL(shaderID, materialID)
     
@@ -422,8 +441,8 @@ function Enter()
 --    materialID = materialFactory:createObject()
     
     --create the shader
---    local key = jli.ShaderFactoryKey("PixelLighting.vsh", "PixelLighting.fsh")
-    local key = jli.ShaderFactoryKey("MyShader.vsh", "MyShader.fsh")
+    local key = jli.ShaderFactoryKey("PixelLighting.vsh", "PixelLighting.fsh")
+--    local key = jli.ShaderFactoryKey("MyShader.vsh", "MyShader.fsh")
     shaderID = jli.TheShaderFactory.getInstance():create(key)
     
 --    ggj:createViewObject(5, "sphere", ggj:getTextureID("spheretexture"), shaderID);
@@ -463,6 +482,10 @@ function Update(deltaTime)
 end
 
 function Render()
+    vbo:getMaterial():setUniformValue("materialSpecularColor", jli.btVector4(1.0, 1.0, 1.0, 1.0));
+    vbo:getMaterial():setUniformValue("materialSpecularExponent", 1.0);
+    vbo:getMaterial():setUniformValue("lightPosition", jli.btVector4(1.0, 1.0, 1.0, 1.0));
+    
 --    jli.WorldPhysics.getInstance():debugDrawWorld()
 end
 
